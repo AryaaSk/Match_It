@@ -1,0 +1,10 @@
+#When adding a item to gitignore, need to remove and retrack all files in git:
+# git rm -r --cached .
+# git add .
+
+#Generated files
+/dist
+/.firebase
+
+#System Files
+.DS_Store
