@@ -2,8 +2,10 @@
 let dpi = window.devicePixelRatio;
 
 class Canvas {
-    canvas: any = undefined;
-    c: any = undefined;
+    //@ts-expect-error
+    canvas: HTMLCanvasElement = undefined;
+    //@ts-expect-error
+    c: CanvasRenderingContext2D = undefined;
     canvasWidth = 0; 
     canvasHeight = 0;
     linkCanvas = (canvasID: string) => {
@@ -14,6 +16,9 @@ class Canvas {
         this.canvasWidth = document.getElementById(canvasID)!.getBoundingClientRect().width;
         this.canvas.setAttribute('height', String(this.canvasHeight * dpi));
         this.canvas.setAttribute('width', String(this.canvasWidth * dpi));
+
+        this.canvasHeight *= dpi;
+        this.canvasWidth *= dpi;
         
         document.body.onresize = () => {
             this.linkCanvas(canvasID);
@@ -41,7 +46,7 @@ class Canvas {
         //point will be in format: [x, y]
         this.c.fillStyle = colour;
         if (labelOnly != true) {
-            this.c.fillRect(this.ScreenX(p[0]), this.ScreenY(p[1]), 10, 10);
+            this.c.fillRect(this.ScreenX(p[0])!, this.ScreenY(p[1])!, 10 * dpi, 10 * dpi);
         }
 
         if (label != undefined) {
@@ -57,8 +62,8 @@ class Canvas {
         this.c.strokeStyle = colour;
         this.c.lineWidth = linKThickness;
         this.c.beginPath()
-        this.c.moveTo(this.ScreenX(p1[0]), this.ScreenY(p1[1]))
-        this.c.lineTo(this.ScreenX(p2[0]), this.ScreenY(p2[1]));
+        this.c.moveTo(this.ScreenX(p1[0])!, this.ScreenY(p1[1])!)
+        this.c.lineTo(this.ScreenX(p2[0])!, this.ScreenY(p2[1])!);
         this.c.stroke();
     }
     drawShape = (points: number[][], colour: string, outline?: boolean, outlineColour?: string) => {
@@ -67,9 +72,9 @@ class Canvas {
         else if (points.length < 3) { console.error("Cannot draw shape, need at least 3 points to draw a shape"); return; }
         this.c.fillStyle = colour;
         this.c.beginPath();
-        this.c.moveTo(this.ScreenX(points[0][0]), this.ScreenY(points[0][1]));
+        this.c.moveTo(this.ScreenX(points[0][0])!, this.ScreenY(points[0][1])!);
         for (let pointsIndex = 1; pointsIndex != points.length; pointsIndex += 1) { 
-            this.c.lineTo(this.ScreenX(points[pointsIndex][0]), this.ScreenY(points[pointsIndex][1])) 
+            this.c.lineTo(this.ScreenX(points[pointsIndex][0])!, this.ScreenY(points[pointsIndex][1])!) 
         }
         this.c.closePath();
         this.c.fill();
@@ -86,8 +91,10 @@ class Canvas {
     clearCanvas = () => {
         if (this.c == undefined) { console.error("Cannot draw, canvas is not linked, please use the linkCanvas(canvasID) before rendering any shapes"); return; }
         this.c.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.c.fillStyle = 'white';
+        /*
+        this.c.fillStyle = 'rgb(0, 0, 0)';
         this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        */
     }
 
 

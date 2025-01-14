@@ -2,7 +2,9 @@
 //Canvas Utilites - from Aryaa3D (https://github.com/AryaaSk/3D-Engine/blob/master/Source/aryaa3D.ts)
 let dpi = window.devicePixelRatio;
 class Canvas {
+    //@ts-expect-error
     canvas = undefined;
+    //@ts-expect-error
     c = undefined;
     canvasWidth = 0;
     canvasHeight = 0;
@@ -13,6 +15,8 @@ class Canvas {
         this.canvasWidth = document.getElementById(canvasID).getBoundingClientRect().width;
         this.canvas.setAttribute('height', String(this.canvasHeight * dpi));
         this.canvas.setAttribute('width', String(this.canvasWidth * dpi));
+        this.canvasHeight *= dpi;
+        this.canvasWidth *= dpi;
         document.body.onresize = () => {
             this.linkCanvas(canvasID);
         };
@@ -46,7 +50,7 @@ class Canvas {
         //point will be in format: [x, y]
         this.c.fillStyle = colour;
         if (labelOnly != true) {
-            this.c.fillRect(this.ScreenX(p[0]), this.ScreenY(p[1]), 10, 10);
+            this.c.fillRect(this.ScreenX(p[0]), this.ScreenY(p[1]), 10 * dpi, 10 * dpi);
         }
         if (label != undefined) {
             this.c.font = `${20 * dpi}px Arial`;
@@ -104,8 +108,10 @@ class Canvas {
             return;
         }
         this.c.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.c.fillStyle = 'white';
+        /*
+        this.c.fillStyle = 'rgb(0, 0, 0)';
         this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        */
     };
     //adding in some intermediary functions
     MIN_X = -1.2;
