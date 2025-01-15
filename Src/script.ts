@@ -66,43 +66,6 @@ compareButton.onclick = () => {
     CompareImages(canvas1Raw, canvas2Raw, 300, 300);
 }
 
-function downscaleBitmap(
-    bitmap: number[],
-    width: number,
-    scaleFactor: number
-  ): number[] {
-    if (scaleFactor <= 0 || !Number.isInteger(scaleFactor)) {
-      throw new Error("Scale factor must be a positive integer.");
-    }
-  
-    const originalHeight = bitmap.length / width;
-    if (!Number.isInteger(originalHeight)) {
-      throw new Error("The provided width does not match the bitmap array size.");
-    }
-  
-    const newWidth = Math.floor(width / scaleFactor);
-    const newHeight = Math.floor(originalHeight / scaleFactor);
-    const downscaledBitmap: number[] = [];
-  
-    for (let row = 0; row < newHeight; row++) {
-      for (let col = 0; col < newWidth; col++) {
-        let sum = 0;
-        for (let subRow = 0; subRow < scaleFactor; subRow++) {
-          for (let subCol = 0; subCol < scaleFactor; subCol++) {
-            const originalRow = row * scaleFactor + subRow;
-            const originalCol = col * scaleFactor + subCol;
-            const index = originalRow * width + originalCol;
-            sum += bitmap[index];
-          }
-        }
-        // Average the sum of the block
-        const average = sum / (scaleFactor * scaleFactor);
-        downscaledBitmap.push(Math.round(average)); // Round if needed
-      }
-    }
-  
-    return downscaledBitmap;
-  }
 
 const SimplifyRawImage = (rawData: number[], width: number) => {
     //we can now use this downscaled data
@@ -119,11 +82,7 @@ const SimplifyRawImage = (rawData: number[], width: number) => {
         downscaledRawData.push(alphaValuesOnly[i]);
     }
 
-
-    const downscaledRawData2 = downscaleBitmap(alphaValuesOnly, 300*dpi, dpi);
-
-
-    const divdedBy255 = downscaledRawData2.map((value) => value / 255); //array will only contain 0 or 255, so 'normalise' to 0 and 1
+    const divdedBy255 = downscaledRawData.map((value) => value / 255); //array will only contain 0 or 255, so 'normalise' to 0 and 1
     return divdedBy255;
 }
 
@@ -151,32 +110,6 @@ const OffsetImage = (image: number[], width: number, height: number, offsetX: nu
     return offsetImage;
 }
 
-const GetSimilarity = (reference: number[], userDrawn: number[]) => {
-    let numberOfBlackPixelsInReference = 0;
-    let sharedBlackPixels = 0;
-    let differentPixels = 0;
-    
-    for (let i = 0; i != userDrawn.length; i += 1) {
-        if (reference[i] == 1 && userDrawn[i] == 1) {
-            sharedBlackPixels += 1;
-        }
-        else if (reference[i] != userDrawn[i]) {
-            differentPixels += 1;
-        }
-
-        if (reference[i] == 1) {
-            numberOfBlackPixelsInReference += 1;
-        }
-    }
-
-    console.log(sharedBlackPixels, differentPixels)
-
-    const blackWeighting = 10;
-    const similarity = Math.max(sharedBlackPixels * blackWeighting - differentPixels, 0);
-    const similarityNormalised = Math.round(similarity / (numberOfBlackPixelsInReference * blackWeighting) * 100);
-    return similarityNormalised;
-}
-
 let O_X = 0;
 let O_Y = 0;
 document.body.onkeydown = ($e: KeyboardEvent) => {
@@ -197,7 +130,7 @@ document.body.onkeydown = ($e: KeyboardEvent) => {
 
 
 //images are bitmap arrays (e.g [1, 1, 1, 0, 0, 0])
-const CompareImages = (reference: number[], userDrawn: number[], width: number, height: number) => {
+const CompareImages = async (reference: number[], userDrawn: number[], width: number, height: number) => {
     /*
     let [maxSimilarity, maxSimilarityOffsetX, maxSimilarityOffsetY] = [0, 0, 0];
 
@@ -224,20 +157,19 @@ const CompareImages = (reference: number[], userDrawn: number[], width: number, 
     console.log(`${(2*offsetBound)**2} positions took ${endTime - startTime} milliseconds`)
     */
 
-    const offsettedUserImage = OffsetImage(userDrawn, width, height, O_X, O_Y);
-    const similarity = GetSimilarity(reference, offsettedUserImage);
-    console.log(`O_X: ${O_X}, O_Y: ${O_Y}, Similarity: ${similarity}`);
-    DISPLAY_OVERLAY();
+    //const similarity = Similarity(reference, userDrawn, 300, 300, O_X, O_Y);
+    //console.log(`O_X: ${O_X}, O_Y: ${O_Y}, Similarity: ${similarity}`);
+    await FindMaximiumSimilarity(reference, userDrawn, 300, 300);
 }
 
 
 
-const DISPLAY_OVERLAY = () => {
+const DISPLAY_OVERLAY = (dx: number, dy: number) => {
     canvas3.clearCanvas();
 
     //merge canvas1 and canvas2 data
     const canvas1ImageData = canvas1.c.getImageData(0, 0, canvas1.canvasWidth, canvas1.canvasHeight);
-    const canvas2ImageData = offsetImageData(canvas2.c.getImageData(0, 0, canvas2.canvasWidth, canvas2.canvasHeight), O_X, O_Y);
+    const canvas2ImageData = offsetImageData(canvas2.c.getImageData(0, 0, canvas2.canvasWidth, canvas2.canvasHeight), dx, dy);
 
     for (let i = 0; i < canvas1ImageData.data.length; i += 4) {
         if (canvas1ImageData.data[i + 3] == 0 && canvas2ImageData.data[i + 3] == 0) {
