@@ -34,23 +34,6 @@ const OffsetImage = (image, width, height, offsetX, offsetY) => {
     }
     return offsetImage;
 };
-let O_X = 0;
-let O_Y = 0;
-document.body.onkeydown = ($e) => {
-    const key = $e.key.toLowerCase();
-    if (key == "a") {
-        O_X -= 1;
-    }
-    else if (key == "d") {
-        O_X += 1;
-    }
-    else if (key == "w") {
-        O_Y -= 1;
-    }
-    else if (key == "s") {
-        O_Y += 1;
-    }
-};
 //images are bitmap arrays (e.g [1, 1, 1, 0, 0, 0])
 const CompareImages = async (reference, userDrawn, width, height) => {
     /*

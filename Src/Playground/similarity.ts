@@ -1,3 +1,82 @@
+
+const SimplifyRawImage = (rawData: number[], width: number) => {
+    //we can now use this downscaled data
+    const alphaValuesOnly = rawData.filter((val, index) => index % 4 == 3); //take 3rd element from every group of 4
+    
+    //will iterate through the alpha values, and skip every DPI elements.
+    //to filter rows, we will only take rows such that row index % DPI == 0
+    const downscaledRawData: number[] = [];
+    for (let i = 0; i < alphaValuesOnly.length; i += dpi) {
+        const row = Math.floor(i / width);
+        if (row % dpi != 0) {
+            continue; //skip all rows which aren't multiples of the DPI
+        }
+        downscaledRawData.push(alphaValuesOnly[i]);
+    }
+
+    const divdedBy255 = downscaledRawData.map((value) => value / 255); //array will only contain 0 or 255, so 'normalise' to 0 and 1
+    return divdedBy255;
+}
+
+//offsetX and offsetY have domain [-canvasWidth/2 or -canvasHeight/2, canvasWidth/2 or canvasHeight/2]
+const OffsetImage = (image: number[], width: number, height: number, offsetX: number, offsetY: number) => {
+    //iterate through image array; for each element, determine it's new position and place in new image
+    const offsetImage: number[] = Array(image.length).fill(0);
+    for (let i = 0; i != image.length; i += 1) {
+        const x = i % width; //use mod operator to determine position in row
+        const y = Math.floor(i / width); //integer divison to determine y-coordinate
+
+        const newX = x + offsetX;
+        const newY = y + offsetY;
+
+        //determine whether newX and newY are within the bounds of the image
+        if (newX < 0 || newY < 0 || newX >= width || newY >= height) {
+            continue; //skip pixel if out of bounds
+        }
+
+        //otherwise insert element into new position
+        const newFlatPosition = newY * width + newX;
+        offsetImage[newFlatPosition] = image[i];
+    }
+
+    return offsetImage;
+}
+
+
+//images are bitmap arrays (e.g [1, 1, 1, 0, 0, 0])
+const CompareImages = async (reference: number[], userDrawn: number[], width: number, height: number) => {
+    /*
+    let [maxSimilarity, maxSimilarityOffsetX, maxSimilarityOffsetY] = [0, 0, 0];
+
+    const offsetBound = 15;
+    
+    const startTime = Date.now();
+
+    for (let offsetX = -offsetBound; offsetX <= offsetBound; offsetX += 1) {
+        for (let offsetY = -offsetBound; offsetY <= offsetBound; offsetY += 1) {
+            const offsettedUserImage = OffsetImage(userDrawn, width, height, offsetX, offsetY);
+            const similarity = GetSimilarity(reference, offsettedUserImage);
+
+            if (similarity > maxSimilarity) {
+                maxSimilarity = similarity;
+                maxSimilarityOffsetX = offsetX;
+                maxSimilarityOffsetY = offsetY;
+            }
+        }   
+    }
+
+    const endTime = Date.now();
+
+    console.log(maxSimilarity, maxSimilarityOffsetX, maxSimilarityOffsetY);
+    console.log(`${(2*offsetBound)**2} positions took ${endTime - startTime} milliseconds`)
+    */
+
+    //const similarity = Similarity(reference, userDrawn, 300, 300, O_X, O_Y);
+    //console.log(`O_X: ${O_X}, O_Y: ${O_Y}, Similarity: ${similarity}`);
+    await FindMaximiumSimilarity(reference, userDrawn, 300, 300);
+}
+
+
 const CalculateSimilarity = (reference: number[], userDrawn: number[]) => {
     let numberOfBlackPixelsInReference = 0;
     let sharedBlackPixels = 0;
@@ -57,7 +136,7 @@ const MaximiseSimilarity = async (reference: number[], userImage: number[], widt
         const normalisedGradientWRTdy = gradientWRTdy / magnitude;
 
         //update dx and dy with this derivative vector
-        const learningRate = 5;
+        const learningRate = 10;
         dx += normalisedGradientWRTdx * learningRate;
         dy += normalisedGradientWRTdy * learningRate;
         
