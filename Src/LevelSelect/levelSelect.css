@@ -1,6 +1,39 @@
-#main {
-    height: 100vh;
-    width: 100%;
+body {
+    text-align: center;
 
+    --levelWidth: 100px;
+    --levelHeight: 100px;
+    --levelColour: rgb(96, 191, 247);
+    --levelColourActive: rgb(43, 171, 245);
+}
+#main {
+    height: auto;
+    width: max-content;
+
+    display: grid;
+    grid-template-columns: repeat(1, var(--activityWidth)); /*Grid columns are calculated in JS, HOWEVER THIS SPECIFIC PROPERTY DOES NOT SEEM TO GET UPDATED*/
+    grid-auto-rows: var(--activityHeight);
+    gap: 10px;
     
+    place-items: center;
+    margin: 0 auto;
+}
+#main > div {
+    height: var(--levelHeight);
+    width: var(--levelWidth);
+
+    display: grid;
+    place-content: center;
+
+    background-color: var(--levelColour);
+    font-size: xx-large;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+}
+#main > div:hover {   
+    background-color: var(--levelColourActive);
+}
+#main > div:active {
+    background-color: var(--levelColourActive);
 }
