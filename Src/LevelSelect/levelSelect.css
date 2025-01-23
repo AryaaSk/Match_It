@@ -31,9 +31,6 @@ body {
     border-radius: 10px;
     cursor: pointer;
 }
-#main > div:hover {   
-    background-color: var(--levelColourActive);
-}
 #main > div:active {
     background-color: var(--levelColourActive);
 }

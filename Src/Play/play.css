@@ -1,3 +1,64 @@
 body {
     text-align: center;
+    --clearColour: red;
+    --clearColourActive: darkred;
+}
+
+#referenceCanvas {
+    height: 300px;
+    width: 300px;
+
+    border-image: linear-gradient(to right, #ffe865 0%, #f0b209 100%) 1;
+    border-width: 10px;
+    border-style: solid;
+}
+
+
+#canvasWrapper {
+    height: 300px;
+    width: 300px;
+    margin: 0 auto;
+
+    position: relative;
+}
+
+#userCanvas {
+    height: 300px;
+    width: 300px;
+
+    border: 3px solid black;
+    z-index: -1;
+}
+
+#clear {
+    height: 50px;
+    width: 50px;
+
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1;
+
+    border: none;
+    background-color: var(--clearColour);
+    color: white;
+}
+#clear:active {
+    background-color: var(--clearColourActive);
+
+}
+
+#timer {
+    height: 50px;
+    width: 50px;
+
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1;
+
+    background-color: lightgray;
+    font-size: x-large;
+    display: grid;
+    place-content: center;
 }
