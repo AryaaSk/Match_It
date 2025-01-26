@@ -48,13 +48,14 @@ class Canvas {
             return;
         }
         //point will be in format: [x, y]
+        const pointSize = size == undefined ? 10 : size;
         this.c.fillStyle = colour;
         if (labelOnly != true) {
-            this.c.fillRect(this.ScreenX(p[0]), this.ScreenY(p[1]), 10 * dpi, 10 * dpi);
+            this.c.fillRect(this.ScreenX(p[0]), this.ScreenY(p[1]), pointSize * dpi, pointSize * dpi);
         }
         if (label != undefined) {
             this.c.font = `${20 * dpi}px Arial`;
-            this.c.fillText(label, this.ScreenX(p[0]) + 10, this.ScreenY(p[1]) + 10);
+            this.c.fillText(label, this.ScreenX(p[0]) + pointSize, this.ScreenY(p[1]) + pointSize);
         }
     };
     drawLine = (p1, p2, colour, thickness) => {

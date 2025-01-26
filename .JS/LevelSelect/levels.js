@@ -53,7 +53,7 @@ const LEVELS = {
         referenceImagePath: "/Src/References/Circle.png"
     },
     "2": {
-        referenceImagePath: "/Src/References/Circle.png"
+        referenceImagePath: "/Src/References/Corner.png"
     }
 };
 //retrieve level progress from local storage, and hold in global variable

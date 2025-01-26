@@ -1,8 +1,8 @@
 
 const SimplifyRawImage = (rawData: number[], width: number) => {
     //we can now use this downscaled data
-    const alphaValuesOnly = rawData.filter((val, index) => index % 4 == 3); //take 3rd element from every group of 4
-    
+    const alphaValuesOnly = rawData.filter((val, index) => index % 4 == 3); //take 4th element from every group of 4
+
     //will iterate through the alpha values, and skip every DPI elements.
     //to filter rows, we will only take rows such that row index % DPI == 0
     const downscaledRawData: number[] = [];
@@ -11,10 +11,15 @@ const SimplifyRawImage = (rawData: number[], width: number) => {
         if (row % dpi != 0) {
             continue; //skip all rows which aren't multiples of the DPI
         }
+
+        //instead of taking top-left pixel of each dpixdpi grid, I will take middle pixel
+        //const middleDistance =  Math.floor(dpi / 2);
+        //const middleIndex = i + middleDistance*width + middleDistance;
+        //downscaledRawData.push(alphaValuesOnly[middleIndex]);
         downscaledRawData.push(alphaValuesOnly[i]);
     }
 
-    const divdedBy255 = downscaledRawData.map((value) => value / 255); //array will only contain 0 or 255, so 'normalise' to 0 and 1
+    const divdedBy255 = downscaledRawData.map((value) => Math.ceil(value / 255)); //array will only contain 0 or 255, so 'normalise' to 0 and 1
     return divdedBy255;
 }
 
@@ -73,10 +78,14 @@ const CompareImages = async (reference: number[], userDrawn: number[], width: nu
 
     //const similarity = Similarity(reference, userDrawn, 300, 300, O_X, O_Y);
     //console.log(`O_X: ${O_X}, O_Y: ${O_Y}, Similarity: ${similarity}`);
-    await FindMaximiumSimilarity(reference, userDrawn, 300, 300);
+    const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(reference, userDrawn, 300, 300);
+    
+    DISPLAY_OVERLAY(maxDx, maxDy, canvas1, canvas2, canvas3);
+    console.log(`Maximum similarity: ${maxSimilarity} at dx = ${maxDx} dy = ${maxDy}`);
 }
 
 
+//why does this produce different outputs on 1x and 3x DPI
 const CalculateSimilarity = (reference: number[], userDrawn: number[]) => {
     let numberOfBlackPixelsInReference = 0;
     let sharedBlackPixels = 0;
@@ -156,11 +165,21 @@ const Wait = (ms: number) => {
     })
 }
 
-const FindMaximiumSimilarity = async (reference: number[], userImage: number[], width: number, height: number) => {
+const FindMaximiumSimilarity = async (reference: number[], userImage: number[], width: number, height: number, progressCallback?: (progress: number) => Promise<void>) => {
     let [maxSimilarity, maxDx, maxDy] = [-Infinity, 0, 0];
+
+    const totalIterations = 49; //7*7 = 49 (progress control)
+    let currentIteration = 0;
+
     for (let startingDX = -150; startingDX <= 150; startingDX += 50) {
         for (let startingDY = -150; startingDY <= 150; startingDY += 50) {
             const [similarity, dx, dy] = await MaximiseSimilarity(reference, userImage, width, height, startingDX, startingDY);
+            currentIteration += 1;
+
+            if (progressCallback != undefined ){
+                const progress = currentIteration / totalIterations;
+                await progressCallback(progress);
+            }
 
             if (similarity > maxSimilarity) {
                 [maxSimilarity, maxDx, maxDy] = [similarity, dx, dy];
@@ -168,6 +187,75 @@ const FindMaximiumSimilarity = async (reference: number[], userImage: number[], 
         }
     }
 
-    DISPLAY_OVERLAY(maxDx, maxDy);
-    console.log(`Maximum similarity: ${maxSimilarity} at dx = ${maxDx} dy = ${maxDy}`);
+    return [maxDx, maxDy, maxSimilarity];
+}
+
+
+
+
+
+
+
+
+
+
+const DISPLAY_OVERLAY = (dx: number, dy: number, referenceCanvas: Canvas, userCanvas: Canvas, feedbackCanvas: Canvas) => {
+    feedbackCanvas.clearCanvas();
+
+    //merge canvas1 and canvas2 data
+    const canvas1ImageData = referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight);
+    const canvas2ImageData = offsetImageData(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight), dx*dpi, dy*dpi);
+
+    for (let i = 0; i < canvas1ImageData.data.length; i += 4) {
+        if (canvas1ImageData.data[i + 3] == 0 && canvas2ImageData.data[i + 3] == 0) {
+            continue; //ignore transparent pixels
+        }
+
+        //if there is no overlap with canvas2, then leave pixel black
+        //if there is overlap with canvas2, then make pixel green
+        if (canvas1ImageData.data[i + 3] == 255 && canvas2ImageData.data[i + 3] == 255) {
+            canvas1ImageData.data[i + 1] = 255;
+        }
+        //if just a canvas2 pixel is black, make pixel red
+        if (canvas1ImageData.data[i + 3] == 0 && canvas2ImageData.data[i + 3] == 255) {
+            canvas1ImageData.data[i] = 255;
+            canvas1ImageData.data[i + 3] = 255;//also need to make pixel visible
+        }
+    }
+
+    feedbackCanvas.c.putImageData(canvas1ImageData, 0, 0);
+}
+
+
+
+
+//AI Generated code:
+function offsetImageData(imageData: ImageData, dx: number, dy: number): ImageData {
+    const { width, height } = imageData;
+    const offsetData = new ImageData(width, height); // Create a new ImageData object
+
+    // Loop through the pixels of the original image
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            // Calculate the source coordinates
+            const srcX = x - dx;
+            const srcY = y - dy;
+
+            if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+                // Source index in the original image
+                const srcIndex = (srcY * width + srcX) * 4;
+
+                // Destination index in the new image
+                const destIndex = (y * width + x) * 4;
+
+                // Copy RGBA values
+                offsetData.data[destIndex] = imageData.data[srcIndex];         // R
+                offsetData.data[destIndex + 1] = imageData.data[srcIndex + 1]; // G
+                offsetData.data[destIndex + 2] = imageData.data[srcIndex + 2]; // B
+                offsetData.data[destIndex + 3] = imageData.data[srcIndex + 3]; // A
+            }
+        }
+    }
+
+    return offsetData;
 }

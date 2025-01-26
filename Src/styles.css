@@ -11,6 +11,10 @@ body {
     justify-content: center;
     align-items: center;
 }
+.gridCenter {
+    display: grid;
+    place-items: center;
+}
 
 .gridChild {
     height: 100%;

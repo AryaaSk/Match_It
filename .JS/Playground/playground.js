@@ -60,62 +60,44 @@ const compareButton = document.getElementById("compare");
 compareButton.onclick = () => {
     const canvas1Raw = SimplifyRawImage(Array.from(canvas1.c.getImageData(0, 0, canvas1.canvasWidth, canvas1.canvasHeight).data), 300 * dpi);
     const canvas2Raw = SimplifyRawImage(Array.from(canvas2.c.getImageData(0, 0, canvas2.canvasWidth, canvas2.canvasHeight).data), 300 * dpi);
+    //save canvas1data on 1x
+    //const canvas1RawJSON = JSON.stringify(canvas2Raw);
+    //localStorage.setItem("canvas1Raw3x", canvas1RawJSON);
+    //canvas1Raw seems to change between 1x and 3x DPI
+    //PlotBitmapOnCanvas3(canvas3xRaw, 300, "#0000ff30")
+    //PlotBitmapOnCanvas3(canvas1xRaw, 300, "#ff000030")
+    //PlotBitmapOnCanvas3(differentPixels, 300, "#0000ff30")
+    //console.log(canvas1x.length, canvas3x.length);
+    //console.log(CalculateSimilarity(canvas1Raw, canvas1xRaw));
+    /*
+    //save canvas2 image data to local storage
+    const dataURL = canvas2.canvas.toDataURL();
+    localStorage.setItem("canvasData", dataURL);
+    //expect similarity = 28 at dx = 69, dy = 60
+    */
+    //1x DPI results: Maximum similarity: 35.01989592898684 at dx = 71 dy = 60
+    //2x DPI results: Maximum similarity: 36.145502645502646 at dx = 68 dy = 56
+    //3x DPI results: Maximum similarity: 35.01989592898684 at dx = 71 dy = 60
+    //using circle reference and this code to retrieve sample user image
+    /*
+    //load image to usercanvas
+    const dataURL = localStorage.getItem("canvasData");
+    const img2 = new Image();
+    img2.src = dataURL!;
+    img2.onload = () => {
+        canvas2.c.clearRect(0, 0, canvas2.canvasWidth, canvas2.canvasHeight);
+        canvas2.c.drawImage(img2, 0, 0, 300*dpi, 300*dpi);
+    }
+    */
     CompareImages(canvas1Raw, canvas2Raw, 300, 300);
 };
-const DISPLAY_OVERLAY = (dx, dy) => {
-    canvas3.clearCanvas();
-    //merge canvas1 and canvas2 data
-    const canvas1ImageData = canvas1.c.getImageData(0, 0, canvas1.canvasWidth, canvas1.canvasHeight);
-    const canvas2ImageData = offsetImageData(canvas2.c.getImageData(0, 0, canvas2.canvasWidth, canvas2.canvasHeight), dx, dy);
-    for (let i = 0; i < canvas1ImageData.data.length; i += 4) {
-        if (canvas1ImageData.data[i + 3] == 0 && canvas2ImageData.data[i + 3] == 0) {
-            continue; //ignore transparent pixels
-        }
-        //if there is no overlap with canvas2, then leave pixel black
-        //if there is overlap with canvas2, then make pixel green
-        if (canvas1ImageData.data[i + 3] == 255 && canvas2ImageData.data[i + 3] == 255) {
-            canvas1ImageData.data[i + 1] = 255;
-        }
-        //if just a canvas2 pixel is black, make pixel red
-        if (canvas1ImageData.data[i + 3] == 0 && canvas2ImageData.data[i + 3] == 255) {
-            canvas1ImageData.data[i] = 255;
-            canvas1ImageData.data[i + 3] = 255; //also need to make pixel visible
-        }
-    }
-    canvas3.c.putImageData(canvas1ImageData, 0, 0);
-};
-const PlotBitmapOnCanvas3 = (image, width) => {
+const PlotBitmapOnCanvas3 = (image, width, colour) => {
     for (let i = 0; i < image.length; i += 1) {
         if (image[i] == 0) {
             continue;
         }
         const x = i % width;
         const y = Math.floor(i / width);
-        canvas3.plotPoint([canvas3.GridX(x), canvas3.GridY(y)], "black");
+        canvas3.plotPoint([canvas3.GridX(x), canvas3.GridY(y)], colour, undefined, undefined, 1);
     }
 };
-//AI Generated code:
-function offsetImageData(imageData, dx, dy) {
-    const { width, height } = imageData;
-    const offsetData = new ImageData(width, height); // Create a new ImageData object
-    // Loop through the pixels of the original image
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            // Calculate the source coordinates
-            const srcX = x - dx;
-            const srcY = y - dy;
-            if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
-                // Source index in the original image
-                const srcIndex = (srcY * width + srcX) * 4;
-                // Destination index in the new image
-                const destIndex = (y * width + x) * 4;
-                // Copy RGBA values
-                offsetData.data[destIndex] = imageData.data[srcIndex]; // R
-                offsetData.data[destIndex + 1] = imageData.data[srcIndex + 1]; // G
-                offsetData.data[destIndex + 2] = imageData.data[srcIndex + 2]; // B
-                offsetData.data[destIndex + 3] = imageData.data[srcIndex + 3]; // A
-            }
-        }
-    }
-    return offsetData;
-}

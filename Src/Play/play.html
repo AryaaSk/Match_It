@@ -7,6 +7,8 @@
 
     <script src="/.JS/canvasUtilities.js"></script>
     <script src="/.JS/LevelSelect/levels.js"></script>
+
+    <script src="/.JS/Playground/similarity.js"></script>
     <script src="/.JS/Play/play.js" defer></script>
 
     <link rel="stylesheet" href="/Src/styles.css">
@@ -21,12 +23,33 @@
     <br>
 
     <h1>MATCH IT</h1>
+    <h3>Timer starts when you start drawing</h3>
     <br>
 
     <div id="canvasWrapper">
         <canvas id="userCanvas"></canvas>
         <button id="clear">Clear</button>
         <div id="timer">30</div>
+    </div>
+
+    <div id="resultsPopupBackground">
+        <div id="resultsPopup" class="gridCenter">
+            <div id="loaderWrapper">
+                <div class="loader"></div>
+                <div id="loaderProgress">100%</div>
+            </div>
+
+            <div id="results">
+                <h1 id="similarityLabel">Similarity: 30</h1>
+                <br>
+                <button id="playAgain">Play again</button>
+                <br>
+                <br>
+                <button id="backToHome">Back to home</button>
+            </div>
+
+            <canvas id="feedbackCanvas"></canvas>
+        </div>
     </div>
 
 </body>
