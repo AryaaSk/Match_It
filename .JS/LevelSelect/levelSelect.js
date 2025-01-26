@@ -18,8 +18,21 @@ const InitLevels = (levels) => {
     main.innerHTML = "";
     for (const levelID in levels) {
         const levelElement = document.createElement("div");
-        levelElement.innerText = levelID;
+        const unlocked = LEVEL_PROGRESS[levelID].unlocked;
+        const similarity = LEVEL_PROGRESS[levelID].highestSimilarity;
+        levelElement.innerHTML = `${levelID}<br><h6>${unlocked == true ? `${Math.round(similarity)}%` : ''}</h6>`;
+        //set colour based on level status
+        if (unlocked == false) {
+            levelElement.className = "locked";
+        }
+        else if (similarity >= PASS_THRESHOLD) {
+            levelElement.className = "passed";
+        }
         levelElement.onclick = () => {
+            //ensure level is unlocked
+            if (LEVEL_PROGRESS[levelID].unlocked == false) {
+                return;
+            }
             //select level, and navigate back to home
             SelectLevel(levelID);
             location.href = "/Src/Home/home.html";

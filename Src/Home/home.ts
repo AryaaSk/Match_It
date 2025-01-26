@@ -1,6 +1,8 @@
 const UpdateLevel = (levelID: string) => {
     const currentLevelElement = document.getElementById("currentLevel")!;
-    currentLevelElement.innerText = levelID;
+    const currentHighestSimilarty = Math.round(LEVEL_PROGRESS[levelID].highestSimilarity);
+
+    currentLevelElement.innerHTML = `<h1>${levelID}</h1><h6>(${currentHighestSimilarty}%)</h6><br>`;
 }
 
 const InitListeners = () => {

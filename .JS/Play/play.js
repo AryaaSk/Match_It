@@ -67,7 +67,9 @@ const StartTimer = (duration) => {
             timer.innerText = String(timeLeft);
             if (timeLeft == 0) {
                 clearInterval(interval);
-                resolve(undefined);
+                setTimeout(() => {
+                    resolve(undefined);
+                }, 300);
             }
         }, 1000);
     });
@@ -90,6 +92,10 @@ const InitPopupListeners = () => {
     playAgainButton.onclick = () => {
         location.reload();
     };
+    const backToHomeButton = document.getElementById("backToHome");
+    backToHomeButton.onclick = () => {
+        location.href = "/Src/Home/home.html";
+    };
 };
 const loaderWrapper = document.getElementById("loaderWrapper");
 const results = document.getElementById("results");
@@ -106,6 +112,7 @@ const HideLoader = () => {
     results.style.display = "";
     feedbackCanvas.canvas.style.display = "";
 };
+const feedbackElement = document.getElementById("feedback");
 const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) => {
     const referenceCanvasRaw = SimplifyRawImage(Array.from(referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight).data), 300 * dpi);
     const userCanvasRaw = SimplifyRawImage(Array.from(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight).data), 300 * dpi);
@@ -114,6 +121,36 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     similarityLabel.innerText = `Similarity: ${Math.round(maxSimilarity)}`;
     DISPLAY_OVERLAY(maxDx, maxDy, referenceCanvas, userCanvas, feedbackCanvas);
     console.log(`Maximum similarity: ${maxSimilarity} at dx = ${maxDx} dy = ${maxDy}`);
+    //curate feedback
+    let feedback = "";
+    //save this to LevelData
+    const currentHighestSimilarty = LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity;
+    if (maxSimilarity > currentHighestSimilarty) {
+        LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity = maxSimilarity;
+        feedback += "NEW HIGH SCORE!\n\n";
+    }
+    //check whether user passed level
+    if (maxSimilarity > PASS_THRESHOLD) {
+        //unlock next level
+        const levelIDs = Object.keys(LEVEL_PROGRESS);
+        const currentLevelIDIndex = levelIDs.indexOf(CURRENTLY_SELECTED_LEVEL_ID);
+        if (currentLevelIDIndex < (levelIDs.length - 1)) {
+            const nextLevelID = levelIDs[currentLevelIDIndex + 1];
+            LEVEL_PROGRESS[nextLevelID].unlocked = true;
+            feedback += `You passed and unlocked level ${nextLevelID}`;
+        }
+        else {
+            feedback += `You've completed all the levels`;
+        }
+    }
+    else if (currentHighestSimilarty < PASS_THRESHOLD) {
+        feedback += `You need ${PASS_THRESHOLD - Math.round(maxSimilarity)} more similarity to pass!`;
+    }
+    else { //user hasn't passed, but they have in the past
+        feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}`;
+    }
+    SaveLevelProgress(LEVEL_PROGRESS);
+    feedbackElement.innerText = feedback;
 };
 const MainPlay = async () => {
     const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];
@@ -140,6 +177,6 @@ const MainPlay = async () => {
             });
         });
         HideLoader();
-    }, 1);
+    }, 100);
 };
 MainPlay();

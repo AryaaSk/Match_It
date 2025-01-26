@@ -17,8 +17,13 @@ interface LevelProgress {
 const GenerateFreshLevelProgress = (levels: { [levelID: string]: Level }) => {
     const levelProgress: { [levelID: string]: LevelProgress } = {};
     for (const levelID in levels) {
-        levelProgress[levelID] = { unlocked: false, highestSimilarity: -10000 }; //-infinity
+        levelProgress[levelID] = { unlocked: false, highestSimilarity: 0 }; //-infinity
     }
+
+    //unlock first level
+    const firstLevelID = Object.keys(levelProgress)[0];
+    levelProgress[firstLevelID].unlocked = true;
+
     return levelProgress
 }
 
@@ -36,7 +41,7 @@ const RetrieveLevelProgress = () => {
         for (const levelID in LEVELS) {
             if (levelProgress[levelID] == undefined) {
                 //generate fresh progress for this level
-                levelProgress[levelID] = { unlocked: false, highestSimilarity: -10000 };
+                levelProgress[levelID] = { unlocked: false, highestSimilarity: 0 };
             }
         }
 
@@ -74,7 +79,7 @@ const LEVELS: { [ levelID: string ]: Level } = {
         referenceImagePath: "/Src/References/Circle.png"
     },
     "2": {
-        referenceImagePath: "/Src/References/Corner.png"
+        referenceImagePath: "/Src/References/Square.png"
     }
 }
 
@@ -82,3 +87,5 @@ const LEVELS: { [ levelID: string ]: Level } = {
 //retrieve level progress from local storage, and hold in global variable
 let LEVEL_PROGRESS: { [levelID: string]: LevelProgress } = RetrieveLevelProgress();
 let CURRENTLY_SELECTED_LEVEL_ID = GetCurrentlySelectedLevel();
+
+const PASS_THRESHOLD = 63;

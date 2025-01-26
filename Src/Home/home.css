@@ -31,7 +31,7 @@
 
 
 #main {
-    height: 400px;
+    height: 300px;
     width: 300px;
 
     display: grid;
@@ -41,7 +41,12 @@
 #currentLevel {
     border: 1px solid black;
     border-bottom: none;
+}
+#currentLevel > h1 {
     font-size: 150px;
+}
+#currentLevel > h6 {
+    font-size: 30px;
 }
 #buttons {
     display: grid;
