@@ -51,12 +51,18 @@ const RetrieveLevelProgress = () => {
 
 const GetCurrentlySelectedLevel = () => {
     const levelID = localStorage.getItem(CURRENT_SELECTED_LEVEL_SAVE_KEY);
+    const firstLevelID = Object.keys(LEVELS)[0];
     if (levelID == undefined) {
-        const firstLevelID = Object.keys(LEVELS)[0];
         return firstLevelID;
     }
     else {
-        return levelID;
+        //check whether level is actually unlocked (validation)
+        if (LEVEL_PROGRESS[levelID].unlocked == false) {
+            return firstLevelID
+        }
+        else {
+            return levelID;
+        }
     }
 }
 
@@ -80,6 +86,9 @@ const LEVELS: { [ levelID: string ]: Level } = {
     },
     "2": {
         referenceImagePath: "/Src/References/Square.png"
+    },
+    "3": {
+        referenceImagePath: "/Src/References/Cloud.png"
     }
 }
 

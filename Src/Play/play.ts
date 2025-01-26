@@ -157,7 +157,6 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
         feedback += "NEW HIGH SCORE!\n\n"
     }
 
-    //check whether user passed level
     if (maxSimilarity > PASS_THRESHOLD) {
         //unlock next level
         const levelIDs = Object.keys(LEVEL_PROGRESS);
@@ -166,17 +165,18 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
             const nextLevelID = levelIDs[currentLevelIDIndex + 1];
             LEVEL_PROGRESS[nextLevelID].unlocked = true;
             
-            feedback += `You passed and unlocked level ${nextLevelID}`;
+            feedback += `You passed and unlocked level ${nextLevelID}\n\n`;
         }
         else {
-            feedback += `You've completed all the levels`;
+            feedback += `You've completed all the levels\n\n`;
         }
     }
-    else if (currentHighestSimilarty < PASS_THRESHOLD) {
-        feedback += `You need ${PASS_THRESHOLD - Math.round(maxSimilarity)} more similarity to pass!`;
+
+    if (currentHighestSimilarty < PASS_THRESHOLD && maxSimilarity < PASS_THRESHOLD) { //new pass
+        feedback += `You need ${PASS_THRESHOLD - Math.round(maxSimilarity)} more similarity to pass!\n\n`;
     }
-    else { //user hasn't passed, but they have in the past
-        feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}`;
+    else if (currentHighestSimilarty > PASS_THRESHOLD) {
+        feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}\n\n`;
     }
 
     SaveLevelProgress(LEVEL_PROGRESS);
