@@ -1,4 +1,5 @@
 "use strict";
+const CANVAS_SIZE = 250;
 const SimplifyRawImage = (rawData, width) => {
     //we can now use this downscaled data
     const alphaValuesOnly = rawData.filter((val, index) => index % 4 == 3); //take 4th element from every group of 4
@@ -67,7 +68,7 @@ const CompareImages = async (reference, userDrawn, width, height) => {
     */
     //const similarity = Similarity(reference, userDrawn, 300, 300, O_X, O_Y);
     //console.log(`O_X: ${O_X}, O_Y: ${O_Y}, Similarity: ${similarity}`);
-    const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(reference, userDrawn, 300, 300);
+    const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(reference, userDrawn, CANVAS_SIZE, CANVAS_SIZE);
     DISPLAY_OVERLAY(maxDx, maxDy, canvas1, canvas2, canvas3);
     console.log(`Maximum similarity: ${maxSimilarity} at dx = ${maxDx} dy = ${maxDy}`);
 };
@@ -139,10 +140,12 @@ const Wait = (ms) => {
 };
 const FindMaximiumSimilarity = async (reference, userImage, width, height, progressCallback) => {
     let [maxSimilarity, maxDx, maxDy] = [-Infinity, 0, 0];
-    const totalIterations = 49; //7*7 = 49 (progress control)
+    const xOffsets = [-125, -100, -50, 0, 50, 100, 125];
+    const yOffsets = [-125, -100, -50, 0, 50, 100, 125];
+    const totalIterations = xOffsets.length * yOffsets.length;
     let currentIteration = 0;
-    for (let startingDX = -150; startingDX <= 150; startingDX += 50) {
-        for (let startingDY = -150; startingDY <= 150; startingDY += 50) {
+    for (const startingDX of xOffsets) {
+        for (const startingDY of yOffsets) {
             const [similarity, dx, dy] = await MaximiseSimilarity(reference, userImage, width, height, startingDX, startingDY);
             currentIteration += 1;
             if (progressCallback != undefined) {

@@ -4,6 +4,7 @@ const referenceCanvas = new Canvas();
 referenceCanvas.linkCanvas("referenceCanvas");
 
 const LoadReferenceImage = (path: string) => {
+    console.log(path);
     const img = new Image();
     img.src = path;
     img.onload = () => {
@@ -32,21 +33,23 @@ const InitUserCanvas = () => { //returns promise once user has made first intera
         let mouseDown = false;
         let firstInteractionFlag = false;
 
-        canvasElement.onmousedown = () => {
+        canvasElement.onpointerdown = () => {
             if (firstInteractionFlag == false) {
                 firstInteractionFlag = true;
                 resolve(undefined);
             }
             mouseDown = true;
         }
-        canvasElement.onmouseup = () => {
+        canvasElement.onpointerup = () => {
             mouseDown = false
         }
 
-        canvasElement.onmousemove = ($e: MouseEvent) => {
+        canvasElement.onpointermove = ($e: PointerEvent) => {
             if (mouseDown == false) {
                 return;
             }
+
+
             const [offsetX, offsetY] = [$e.offsetX, $e.offsetY];
             const [x, y] = [userCanvas.GridX(offsetX), userCanvas.GridY(offsetY)];
             userCanvas.plotPoint([x, y], "black");
@@ -136,10 +139,10 @@ const HideLoader = () => {
 
 const feedbackElement = document.getElementById("feedback")!;
 const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, progressCallback?: (progress: number) => Promise<void>) => {
-    const referenceCanvasRaw = SimplifyRawImage(Array.from(referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight).data), 300*dpi);
-    const userCanvasRaw = SimplifyRawImage(Array.from(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight).data), 300*dpi);
+    const referenceCanvasRaw = SimplifyRawImage(Array.from(referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight).data), CANVAS_SIZE*dpi);
+    const userCanvasRaw = SimplifyRawImage(Array.from(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight).data), CANVAS_SIZE*dpi);
 
-    const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, 300, 300, progressCallback);
+    const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, CANVAS_SIZE, CANVAS_SIZE, progressCallback);
 
     const similarityLabel = document.getElementById("similarityLabel")!;
     similarityLabel.innerText = `Similarity: ${Math.round(maxSimilarity)}`;

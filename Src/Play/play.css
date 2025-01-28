@@ -3,6 +3,8 @@ body {
     --clearColour: red;
     --clearColourActive: darkred;
     --loaderColour: rgb(43, 143, 236);
+
+    touch-action: none;
 }
 
 canvas {
@@ -12,8 +14,8 @@ canvas {
 }
 
 #referenceCanvas {
-    height: 300px; /*to account for border*/
-    width: 300px;
+    height: 250px; /*to account for border*/
+    width: 250px;
 
     border-image: linear-gradient(to right, #ffe865 0%, #f0b209 100%) 1;
     border-width: 10px;
@@ -22,16 +24,16 @@ canvas {
 
 
 #canvasWrapper {
-    height: 300px;
-    width: 300px;
+    height: 250px;
+    width: 250px;
     margin: 0 auto;
 
     position: relative;
 }
 
 #userCanvas {
-    height: 300px;
-    width: 300px;
+    height: 250px;
+    width: 250px;
 
     border: 3px solid black;
     z-index: -1;
@@ -96,8 +98,8 @@ canvas {
     border-radius: 10px;
 }
 #feedbackCanvas {
-    height: 300px;
-    width: 300px;
+    height: 250px;
+    width: 250px;
 
     border: 3px solid black;
 }

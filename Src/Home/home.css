@@ -1,3 +1,7 @@
+body {
+    touch-action: none;
+}
+
 #diamondStoreWrapper {
     width: 200px;
     height: 81px;

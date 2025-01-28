@@ -59,13 +59,13 @@ const SelectLevel = (levelID) => {
 //Hardcoding levels into game
 const LEVELS = {
     "1": {
-        referenceImagePath: "/Src/References/Circle.png"
+        referenceImagePath: "/Assets/References/Circle.png"
     },
     "2": {
-        referenceImagePath: "/Src/References/Square.png"
+        referenceImagePath: "/Assets/References/Square.png"
     },
     "3": {
-        referenceImagePath: "/Src/References/Cloud.png"
+        referenceImagePath: "/Assets/References/Cloud.png"
     }
 };
 //retrieve level progress from local storage, and hold in global variable

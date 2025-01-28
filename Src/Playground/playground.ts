@@ -74,8 +74,8 @@ canvas3.linkCanvas("canvas3");
 //Comparing images
 const compareButton = document.getElementById("compare")!;
 compareButton.onclick = () => {
-    const canvas1Raw = SimplifyRawImage(Array.from(canvas1.c.getImageData(0, 0, canvas1.canvasWidth, canvas1.canvasHeight).data), 300*dpi);
-    const canvas2Raw = SimplifyRawImage(Array.from(canvas2.c.getImageData(0, 0, canvas2.canvasWidth, canvas2.canvasHeight).data), 300*dpi);
+    const canvas1Raw = SimplifyRawImage(Array.from(canvas1.c.getImageData(0, 0, canvas1.canvasWidth, canvas1.canvasHeight).data), CANVAS_SIZE*dpi);
+    const canvas2Raw = SimplifyRawImage(Array.from(canvas2.c.getImageData(0, 0, canvas2.canvasWidth, canvas2.canvasHeight).data), CANVAS_SIZE*dpi);
 
     //save canvas1data on 1x
     //const canvas1RawJSON = JSON.stringify(canvas2Raw);
@@ -113,7 +113,7 @@ compareButton.onclick = () => {
     }
     */
 
-    CompareImages(canvas1Raw, canvas2Raw, 300, 300);
+    CompareImages(canvas1Raw, canvas2Raw, CANVAS_SIZE, CANVAS_SIZE);
 }
 
 
