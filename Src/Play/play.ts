@@ -1,4 +1,5 @@
 const TIMER_DURATION = 5;
+let DAILY_CHALLENGE = false;
 
 //3 canvas setup
 const userCanvas = new Canvas();
@@ -120,6 +121,11 @@ const InitPopupListeners = () => {
     backToHomeButton.onpointerdown = () => {
         location.href = "/Src/Home/home.html";
     }
+
+    const backToLeaderboardButton = document.getElementById("backToLeaderboard")!;
+    backToLeaderboardButton.onclick = () => {
+        location.href = "/Src/DailyChallenge/dailyChallenge.html";
+    }
 }
 
 const loaderWrapper = document.getElementById("loaderWrapper")!;
@@ -140,6 +146,20 @@ const HideLoader = () => {
     feedbackCanvas.canvas.style.display = "";
 }
 
+const singleplayerControls = document.getElementById("singlePlayerControls")!;
+const dailyChallengeControls = document.getElementById("dailyChallengeControls")!;
+
+const ShowSingleplayerControls = () => {
+    singleplayerControls.style.display = "";
+    dailyChallengeControls.style.display = "none";
+}
+const ShowDailyChallengeControls = () => {
+    singleplayerControls.style.display = "none";
+    dailyChallengeControls.style.display = "";
+}
+
+
+
 const feedbackElement = document.getElementById("feedback")!;
 const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, progressCallback?: (progress: number) => Promise<void>) => {
     const referenceCanvasRaw = SimplifyRawImage(Array.from(referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight).data), CANVAS_SIZE*dpi);
@@ -156,51 +176,59 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
     //curate feedback
     let feedback = "";
 
-    //save this to LevelData
-    const currentHighestSimilarty = LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity;
-    if (maxSimilarity > currentHighestSimilarty) {
-        LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity = maxSimilarity;
-        SaveLevelProgress(LEVEL_PROGRESS);
-        feedback += "NEW HIGH SCORE!\n\n"
-    }
+    if (DAILY_CHALLENGE == false) {
+        //save this to LevelData
+        const currentHighestSimilarty = LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity;
+        if (maxSimilarity > currentHighestSimilarty) {
+            LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity = maxSimilarity;
+            SaveLevelProgress(LEVEL_PROGRESS);
+            feedback += "NEW HIGH SCORE!\n\n"
+        }
 
-    //new pass
-    if (maxSimilarity > PASS_THRESHOLD && currentHighestSimilarty < PASS_THRESHOLD) {
-        //unlock next level
-        const levelIDs = Object.keys(LEVEL_PROGRESS);
-        const currentLevelIDIndex = levelIDs.indexOf(CURRENTLY_SELECTED_LEVEL_ID);
-        if (currentLevelIDIndex < (levelIDs.length - 1)) {
-            const nextLevelID = levelIDs[currentLevelIDIndex + 1];
-            if (LEVEL_PROGRESS[nextLevelID].unlocked == true) { //use already purchased next level
-                feedback += `You passed, and have already unlocked level ${nextLevelID}\n\n`;
+        //new pass
+        if (maxSimilarity > PASS_THRESHOLD && currentHighestSimilarty < PASS_THRESHOLD) {
+            //unlock next level
+            const levelIDs = Object.keys(LEVEL_PROGRESS);
+            const currentLevelIDIndex = levelIDs.indexOf(CURRENTLY_SELECTED_LEVEL_ID);
+            if (currentLevelIDIndex < (levelIDs.length - 1)) {
+                const nextLevelID = levelIDs[currentLevelIDIndex + 1];
+                if (LEVEL_PROGRESS[nextLevelID].unlocked == true) { //use already purchased next level
+                    feedback += `You passed, and have already unlocked level ${nextLevelID}\n\n`;
+                }
+                else {
+                    LEVEL_PROGRESS[nextLevelID].unlocked = true;
+                
+                    feedback += `You passed and unlocked level ${nextLevelID}\n\n`;
+                }
             }
             else {
-                LEVEL_PROGRESS[nextLevelID].unlocked = true;
-            
-                feedback += `You passed and unlocked level ${nextLevelID}\n\n`;
+                feedback += `You've completed all the levels\n\n`;
             }
-        }
-        else {
-            feedback += `You've completed all the levels\n\n`;
-        }
-        SaveLevelProgress(LEVEL_PROGRESS);
+            SaveLevelProgress(LEVEL_PROGRESS);
 
-        //provide 1 diamond
-        feedback += "You earned 1 diamond\n\n";
-        DIAMONDS += DIAMONDS_EARNED_PER_PASS;
-        SaveDiamonds(DIAMONDS);
+            //provide 1 diamond
+            feedback += "You earned 1 diamond\n\n";
+            DIAMONDS += DIAMONDS_EARNED_PER_PASS;
+            SaveDiamonds(DIAMONDS);
+        }
+
+        //detect if user hasn't passed yet
+        else if (maxSimilarity < PASS_THRESHOLD && currentHighestSimilarty < PASS_THRESHOLD) {
+            feedback += `You need ${PASS_THRESHOLD - Math.round(maxSimilarity)} more similarity to pass!\n\n`;
+        }
+
+        else if (currentHighestSimilarty > PASS_THRESHOLD) {
+            //have already handled if maxSimilarity > currentHighestSimilarity (high score)
+            if (maxSimilarity < currentHighestSimilarty) {
+                feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}\n\n`;
+            }
+        }   
     }
-
-    //detect if user hasn't passed yet
-    else if (maxSimilarity < PASS_THRESHOLD && currentHighestSimilarty < PASS_THRESHOLD) {
-        feedback += `You need ${PASS_THRESHOLD - Math.round(maxSimilarity)} more similarity to pass!\n\n`;
-    }
-
-    else if (currentHighestSimilarty > PASS_THRESHOLD) {
-        //have already handled if maxSimilarity > currentHighestSimilarity (high score)
-        if (maxSimilarity < currentHighestSimilarty) {
-            feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}\n\n`;
-        }
+    else { //DAILY CHALLENGE == true
+        //update the database with the user's score
+        const day = Math.floor(Date.now() / (1000 * 86400));
+        await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity });
+        feedback += "Your score has been updated on the leaderboard, go back to find out where you placed!\n\n";
     }
 
     feedbackElement.innerText = feedback;
@@ -211,14 +239,37 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
 
 
 const MainPlay = async () => {
-    const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];
-    LoadReferenceImage(currentLevel.referenceImagePath)
+    //detect whether this is in single player mode or daily challenge
+    const params = new URLSearchParams(new URL(location.href).search);
+    const dailyChallenge = params.get("dailyChallenge");
+    if (dailyChallenge == "true") {
+        //load daily challenge; otherwise load regular level (stored under CURRENTLY_SELECTED_LEVEL)  
+        DAILY_CHALLENGE = true;
+    }
+
+    if (DAILY_CHALLENGE == false) {
+        const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];
+        LoadReferenceImage(currentLevel.referenceImagePath)
+    }
+    else {
+        //load image stored under /Assets/DailyChallenge/${DAY}.png
+        const day = Math.floor(Date.now() / (1000 * 86400));
+        const dailyChallengeImagePath = `/Assets/DailyChallenge/${day}.png`;
+        LoadReferenceImage(dailyChallengeImagePath);
+    }
+
     InitTimer(TIMER_DURATION);
     InitClearButton();
     
     HidePopup();
     HideLoader();
     InitPopupListeners();
+    if (DAILY_CHALLENGE == false) {
+        ShowSingleplayerControls();
+    }
+    else {
+        ShowDailyChallengeControls();
+    }
 
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);

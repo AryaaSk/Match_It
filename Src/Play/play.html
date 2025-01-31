@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Match It</title>
 
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+    <script src="/.JS/online.js"></script>
+
     <script src="/.JS/canvasUtilities.js"></script>
     <script src="/.JS/LevelSelect/levels.js"></script>
 
@@ -42,11 +47,18 @@
             <div id="results">
                 <h1 id="similarityLabel">Similarity: 30</h1>
                 <br>
-                <button id="playAgain">Play again</button>
-                <br>
-                <br>
-                <button id="backToHome">Back to home</button>
-                <br>
+
+                <div id="singlePlayerControls">
+                    <button id="playAgain">Play again</button>
+                    <br>
+                    <br>
+                    <button id="backToHome">Back to home</button>
+                    <br>
+                </div>
+                <div id="dailyChallengeControls">
+                    <button id="backToLeaderboard">Back to leaderboard</button>
+                </div>
+
                 <br>
 
                 <div id="feedback">

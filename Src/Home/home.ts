@@ -20,6 +20,11 @@ const InitListeners = () => {
     playButton.onclick = () => {
         location.href = "/Src/Play/play.html"
     }
+
+    const dailyChallenge = document.getElementById("dailyChallenge")!;
+    dailyChallenge.onclick = () => {
+        location.href = "/Src/DailyChallenge/dailyChallenge.html";
+    }
 }
 
 const MainHome = () => {

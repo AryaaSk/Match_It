@@ -1,0 +1,9 @@
+body {
+    text-align: center;
+}
+
+#leaderboard {
+    width: 150px;
+
+    margin: 0 auto;
+}
