@@ -163,7 +163,8 @@ const ShowDailyChallengeControls = () => {
 const feedbackElement = document.getElementById("feedback")!;
 const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, progressCallback?: (progress: number) => Promise<void>) => {
     const referenceCanvasRaw = SimplifyRawImage(Array.from(referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight).data), CANVAS_SIZE*dpi);
-    const userCanvasRaw = SimplifyRawImage(Array.from(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight).data), CANVAS_SIZE*dpi);
+    const userCanvasRawCanvasData = Array.from(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight).data)
+    const userCanvasRaw = SimplifyRawImage(userCanvasRawCanvasData, CANVAS_SIZE*dpi);
 
     const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, CANVAS_SIZE, CANVAS_SIZE, progressCallback);
 
@@ -227,7 +228,12 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
     else { //DAILY CHALLENGE == true
         //update the database with the user's score
         const day = Math.floor(Date.now() / (1000 * 86400));
-        await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity });
+        //encoding canvas data
+        const userCanvasRawCanvasDataJSON = JSON.stringify(userCanvasRawCanvasData);
+        const width = CANVAS_SIZE * dpi;
+
+        //await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity, canvasData: { userCanvasRaw: userCanvasRawCanvasDataJSON, width: width } });
+        await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity }); //canvasdata seems too long for firebase to support
         feedback += "Your score has been updated on the leaderboard, go back to find out where you placed!\n\n";
     }
 

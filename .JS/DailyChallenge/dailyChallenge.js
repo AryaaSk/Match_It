@@ -77,6 +77,20 @@ const InitDailyChallengeListeners = () => {
         location.href = "/Src/Play/play.html?dailyChallenge=true";
     };
 };
+const InitTimeLeft = () => {
+    //determine number of milliseconds till next day
+    const nextDay = DAY + 1;
+    const nextDayMS = nextDay * 86400 * 1000;
+    const timeLeftElement = document.getElementById("timeLeft");
+    setInterval(() => {
+        const timeLeftMS = nextDayMS - Date.now();
+        //convert to seconds, minutes and hours
+        const timeLeftSeconds = Math.floor((timeLeftMS / 1000) % 60);
+        const timeLeftMinutes = Math.floor((timeLeftMS / (1000 * 60)) % 60);
+        const timeLeftHours = Math.floor((timeLeftMS / (1000 * 60 * 60)));
+        timeLeftElement.innerText = `Time left: ${timeLeftHours}h ${timeLeftMinutes}m ${timeLeftSeconds}s`;
+    }, 1000);
+};
 const MainDailyChallenge = async () => {
     //display user's position
     const displayName = await GetDisplayName(UUID);
@@ -86,5 +100,6 @@ const MainDailyChallenge = async () => {
     const leaderboard = await GetLeaderboard();
     await DisplayLeaderboard(leaderboard);
     InitDailyChallengeListeners();
+    InitTimeLeft();
 };
 MainDailyChallenge();

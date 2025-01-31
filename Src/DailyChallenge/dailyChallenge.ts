@@ -2,6 +2,10 @@ const DAY = Math.floor(Date.now() / (1000 * 86400));
 
 interface LeaderboardEntry {
     score: number;
+    canvasData: {
+        userCanvasRaw: string;
+        width: number;
+    }
 }
 
 
@@ -102,6 +106,23 @@ const InitDailyChallengeListeners = () => {
     }
 }
 
+const InitTimeLeft = () => {
+    //determine number of milliseconds till next day
+    const nextDay = DAY + 1;
+    const nextDayMS = nextDay * 86400 * 1000;
+    const timeLeftElement = document.getElementById("timeLeft")!;
+
+    setInterval(() => {
+        const timeLeftMS = nextDayMS - Date.now();
+        //convert to seconds, minutes and hours
+        const timeLeftSeconds = Math.floor((timeLeftMS / 1000) % 60);
+        const timeLeftMinutes = Math.floor((timeLeftMS / (1000 * 60)) % 60);
+        const timeLeftHours = Math.floor((timeLeftMS / (1000 * 60 * 60)));
+        
+        timeLeftElement.innerText = `Time left: ${timeLeftHours}h ${timeLeftMinutes}m ${timeLeftSeconds}s`;
+    }, 1000);
+}
+
 
 
 const MainDailyChallenge = async () => {
@@ -115,5 +136,6 @@ const MainDailyChallenge = async () => {
     await DisplayLeaderboard(leaderboard);
 
     InitDailyChallengeListeners();
+    InitTimeLeft();
 }
 MainDailyChallenge();
