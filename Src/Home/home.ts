@@ -1,3 +1,8 @@
+const UpdateDiamonds = (diamonds: number) => {
+    const diamondStoreElement = document.getElementById("diamondStore")!;
+    diamondStoreElement.innerText = String(diamonds);
+}
+
 const UpdateLevel = (levelID: string) => {
     const currentLevelElement = document.getElementById("currentLevel")!;
     const currentHighestSimilarty = Math.round(LEVEL_PROGRESS[levelID].highestSimilarity);
@@ -18,6 +23,7 @@ const InitListeners = () => {
 }
 
 const MainHome = () => {
+    UpdateDiamonds(DIAMONDS);
     UpdateLevel(CURRENTLY_SELECTED_LEVEL_ID);
     InitListeners();
 }

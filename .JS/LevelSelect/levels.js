@@ -2,6 +2,7 @@
 //file storing all levels
 const LEVEL_PROGRESS_SAVE_KEY = "levelProgress";
 const CURRENT_SELECTED_LEVEL_SAVE_KEY = "currentlySelectedLevel";
+const DIAMOND_STORAGE_KEY = "diamonds";
 //Persistance
 const GenerateFreshLevelProgress = (levels) => {
     const levelProgress = {};
@@ -72,3 +73,20 @@ const LEVELS = {
 let LEVEL_PROGRESS = RetrieveLevelProgress();
 let CURRENTLY_SELECTED_LEVEL_ID = GetCurrentlySelectedLevel();
 const PASS_THRESHOLD = 63;
+//Diamond storage
+const GetDiamonds = () => {
+    const diamondsString = localStorage.getItem(DIAMOND_STORAGE_KEY);
+    if (diamondsString == undefined) {
+        //use has never saved diamond store before
+        localStorage.setItem(DIAMOND_STORAGE_KEY, "0");
+        return 0;
+    }
+    else {
+        const diamonds = Number(diamondsString);
+        return diamonds;
+    }
+};
+const SaveDiamonds = (diamonds) => {
+    localStorage.setItem(DIAMOND_STORAGE_KEY, String(diamonds));
+};
+let DIAMONDS = GetDiamonds();

@@ -31,14 +31,19 @@ const canvasElement = userCanvas.canvas;
 const InitUserCanvas = () => { //returns promise once user has made first interaction with canvas
     return new Promise((resolve) => {
         let mouseDown = false;
-        let firstInteractionFlag = false;
+        let [prevX, prevY] = [0, 0];
 
-        canvasElement.onpointerdown = () => {
+        let firstInteractionFlag = false;
+        canvasElement.onpointerdown = ($e: PointerEvent) => {
             if (firstInteractionFlag == false) {
                 firstInteractionFlag = true;
                 resolve(undefined);
             }
+
+            const [offsetX, offsetY] = [$e.offsetX, $e.offsetY];
+            const [x, y] = [userCanvas.GridX(offsetX), userCanvas.GridY(offsetY)];
             mouseDown = true;
+            [prevX, prevY] = [x, y];
         }
         canvasElement.onpointerup = () => {
             mouseDown = false
@@ -49,10 +54,11 @@ const InitUserCanvas = () => { //returns promise once user has made first intera
                 return;
             }
 
-
             const [offsetX, offsetY] = [$e.offsetX, $e.offsetY];
             const [x, y] = [userCanvas.GridX(offsetX), userCanvas.GridY(offsetY)];
-            userCanvas.plotPoint([x, y], "black");
+            userCanvas.drawLine([prevX, prevY], [x, y], "black", 10);
+
+            [prevX, prevY] = [x, y];
         }
     });
 }
@@ -160,7 +166,8 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
         feedback += "NEW HIGH SCORE!\n\n"
     }
 
-    if (maxSimilarity > PASS_THRESHOLD) {
+    //new pass
+    if (maxSimilarity > PASS_THRESHOLD && currentHighestSimilarty < PASS_THRESHOLD) {
         //unlock next level
         const levelIDs = Object.keys(LEVEL_PROGRESS);
         const currentLevelIDIndex = levelIDs.indexOf(CURRENTLY_SELECTED_LEVEL_ID);
@@ -173,13 +180,23 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
         else {
             feedback += `You've completed all the levels\n\n`;
         }
+
+        //provide 1 diamond
+        feedback += "You earned 1 diamond\n\n";
+        DIAMONDS += 1;
+        SaveDiamonds(DIAMONDS);
     }
 
-    if (currentHighestSimilarty < PASS_THRESHOLD && maxSimilarity < PASS_THRESHOLD) { //new pass
+    //detect if user hasn't passed yet
+    else if (maxSimilarity < PASS_THRESHOLD && currentHighestSimilarty < PASS_THRESHOLD) {
         feedback += `You need ${PASS_THRESHOLD - Math.round(maxSimilarity)} more similarity to pass!\n\n`;
     }
+
     else if (currentHighestSimilarty > PASS_THRESHOLD) {
-        feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}\n\n`;
+        //have already handled if maxSimilarity > currentHighestSimilarity (high score)
+        if (maxSimilarity < currentHighestSimilarty) {
+            feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}\n\n`;
+        }
     }
 
     SaveLevelProgress(LEVEL_PROGRESS);

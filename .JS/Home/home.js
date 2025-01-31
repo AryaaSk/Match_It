@@ -1,4 +1,8 @@
 "use strict";
+const UpdateDiamonds = (diamonds) => {
+    const diamondStoreElement = document.getElementById("diamondStore");
+    diamondStoreElement.innerText = String(diamonds);
+};
 const UpdateLevel = (levelID) => {
     const currentLevelElement = document.getElementById("currentLevel");
     const currentHighestSimilarty = Math.round(LEVEL_PROGRESS[levelID].highestSimilarity);
@@ -15,6 +19,7 @@ const InitListeners = () => {
     };
 };
 const MainHome = () => {
+    UpdateDiamonds(DIAMONDS);
     UpdateLevel(CURRENTLY_SELECTED_LEVEL_ID);
     InitListeners();
 };

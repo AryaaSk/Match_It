@@ -46,7 +46,7 @@ class Canvas {
         //point will be in format: [x, y]
         const pointSize = size == undefined ? 10 : size;
         this.c.fillStyle = colour;
-        if (labelOnly != true) {
+        if (labelOnly == false) {
             this.c.fillRect(this.ScreenX(p[0])!, this.ScreenY(p[1])!, pointSize * dpi, pointSize * dpi);
         }
 
@@ -57,7 +57,7 @@ class Canvas {
     }
     drawLine = (p1: number[], p2: number[], colour: string, thickness?: number) => {
         if (this.c == undefined) { console.error("Cannot draw, canvas is not linked, please use the linkCanvas(canvasID) before rendering any shapes"); return; }
-        const linKThickness = (thickness == undefined) ? 1 : thickness;
+        const linKThickness = (thickness == undefined) ? 1 : thickness * dpi;
         //points will be in format: [x, y]
         //I need to convert the javascript x and y into actual grid x and y
         this.c.strokeStyle = colour;
