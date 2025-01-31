@@ -123,7 +123,7 @@ const InitPopupListeners = () => {
     }
 
     const backToLeaderboardButton = document.getElementById("backToLeaderboard")!;
-    backToLeaderboardButton.onclick = () => {
+    backToLeaderboardButton.onpointerdown = () => {
         location.href = "/Src/DailyChallenge/dailyChallenge.html";
     }
 }
