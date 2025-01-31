@@ -1,7 +1,9 @@
 "use strict";
 const TIMER_DURATION = 5;
+//3 canvas setup
+const userCanvas = new Canvas();
 const referenceCanvas = new Canvas();
-referenceCanvas.linkCanvas("referenceCanvas");
+const feedbackCanvas = new Canvas();
 const LoadReferenceImage = (path) => {
     console.log(path);
     const img = new Image();
@@ -20,11 +22,8 @@ const LoadReferenceImage = (path) => {
     }
     */
 };
-//user canvas controls
-const userCanvas = new Canvas();
-userCanvas.linkCanvas("userCanvas");
-const canvasElement = userCanvas.canvas;
 const InitUserCanvas = () => {
+    const canvasElement = userCanvas.canvas;
     return new Promise((resolve) => {
         let mouseDown = false;
         let [prevX, prevY] = [0, 0];
@@ -83,8 +82,6 @@ const StartTimer = (duration) => {
 //popup management
 const background = document.getElementById("resultsPopupBackground");
 const popup = document.getElementById("resultsPopup");
-const feedbackCanvas = new Canvas();
-feedbackCanvas.linkCanvas("feedbackCanvas");
 const ShowPopup = () => {
     background.style.display = "";
     popup.style.display = "";
@@ -95,11 +92,11 @@ const HidePopup = () => {
 };
 const InitPopupListeners = () => {
     const playAgainButton = document.getElementById("playAgain");
-    playAgainButton.onclick = () => {
+    playAgainButton.onpointerdown = () => {
         location.reload();
     };
     const backToHomeButton = document.getElementById("backToHome");
-    backToHomeButton.onclick = () => {
+    backToHomeButton.onpointerdown = () => {
         location.href = "/Src/Home/home.html";
     };
 };
@@ -133,6 +130,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     const currentHighestSimilarty = LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity;
     if (maxSimilarity > currentHighestSimilarty) {
         LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity = maxSimilarity;
+        SaveLevelProgress(LEVEL_PROGRESS);
         feedback += "NEW HIGH SCORE!\n\n";
     }
     //new pass
@@ -198,4 +196,12 @@ const MainPlay = async () => {
         HideLoader();
     }, 100);
 };
-MainPlay();
+//Wait till CSS styles (i.e. dimensions) are fully applied before initialising canvases
+window.addEventListener("DOMContentLoaded", () => {
+    requestAnimationFrame(() => {
+        referenceCanvas.linkCanvas("referenceCanvas");
+        userCanvas.linkCanvas("userCanvas");
+        feedbackCanvas.linkCanvas("feedbackCanvas");
+        MainPlay();
+    });
+});

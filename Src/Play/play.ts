@@ -1,7 +1,9 @@
 const TIMER_DURATION = 5;
 
+//3 canvas setup
+const userCanvas = new Canvas();
 const referenceCanvas = new Canvas();
-referenceCanvas.linkCanvas("referenceCanvas");
+const feedbackCanvas = new Canvas();
 
 const LoadReferenceImage = (path: string) => {
     console.log(path);
@@ -23,12 +25,9 @@ const LoadReferenceImage = (path: string) => {
     */
 }
 
-//user canvas controls
-const userCanvas = new Canvas();
-userCanvas.linkCanvas("userCanvas")
-const canvasElement = userCanvas.canvas;
 
 const InitUserCanvas = () => { //returns promise once user has made first interaction with canvas
+    const canvasElement = userCanvas.canvas;
     return new Promise((resolve) => {
         let mouseDown = false;
         let [prevX, prevY] = [0, 0];
@@ -101,8 +100,6 @@ const StartTimer = (duration: number) => {
 //popup management
 const background = document.getElementById("resultsPopupBackground")!;
 const popup = document.getElementById("resultsPopup")!;
-const feedbackCanvas = new Canvas();
-feedbackCanvas.linkCanvas("feedbackCanvas");
 
 const ShowPopup = () => {
     background.style.display = "";
@@ -110,17 +107,17 @@ const ShowPopup = () => {
 }
 const HidePopup = () => {
     background.style.display = "none";
-    popup.style.display = "none";
+    popup.style.display = "none"
 }
 
 const InitPopupListeners = () => {
     const playAgainButton = document.getElementById("playAgain")!;
-    playAgainButton.onclick = () => {
+    playAgainButton.onpointerdown = () => {
         location.reload();
     }
 
     const backToHomeButton = document.getElementById("backToHome")!;
-    backToHomeButton.onclick = () => {
+    backToHomeButton.onpointerdown = () => {
         location.href = "/Src/Home/home.html";
     }
 }
@@ -163,6 +160,7 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
     const currentHighestSimilarty = LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity;
     if (maxSimilarity > currentHighestSimilarty) {
         LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity = maxSimilarity;
+        SaveLevelProgress(LEVEL_PROGRESS);
         feedback += "NEW HIGH SCORE!\n\n"
     }
 
@@ -243,4 +241,14 @@ const MainPlay = async () => {
         HideLoader();
     }, 100);
 }
-MainPlay();
+
+//Wait till CSS styles (i.e. dimensions) are fully applied before initialising canvases
+window.addEventListener("DOMContentLoaded", () => {
+    requestAnimationFrame(() => {
+        referenceCanvas.linkCanvas("referenceCanvas");
+        userCanvas.linkCanvas("userCanvas");
+        feedbackCanvas.linkCanvas("feedbackCanvas");
+
+        MainPlay();
+    });
+});
