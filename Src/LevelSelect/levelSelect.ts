@@ -35,14 +35,28 @@ const InitLevels = (levels: { [levelID: string]: Level }) => {
         }
         
         levelElement.onclick = () => {
-            //ensure level is unlocked
+            //check if level is unlocked or not
             if (LEVEL_PROGRESS[levelID].unlocked == false) {
-                return;
-            }
+                //give user the option to purchase level for 2 diamonds
+                if (DIAMONDS < DIAMOND_LEVEL_COST) {
+                    alert(`You currently only have ${DIAMONDS} diamond${DIAMONDS == 1 ? '' : 's'} available, but need at least ${DIAMOND_LEVEL_COST} diamonds to purchase this level.`)
+                    return; //do not allow user to buy level if they have insufficient diamonds
+                }
 
-            //select level, and navigate back to home
-            SelectLevel(levelID);
-            location.href = "/Src/Home/home.html";
+                const confirm = window.confirm(`Are you sure you want to buy this level for ${DIAMOND_LEVEL_COST} diamonds.\n\nYou currently have ${DIAMONDS} diamond${DIAMONDS == 1 ? '' : 's'} available.`);
+                if (confirm == true) {
+                    DIAMONDS -= DIAMOND_LEVEL_COST;
+                    SaveDiamonds(DIAMONDS);
+                    LEVEL_PROGRESS[levelID].unlocked = true;
+                    SaveLevelProgress(LEVEL_PROGRESS);
+                    InitLevels(LEVELS); //reset page
+                }
+            }
+            else {
+                //select level, and navigate back to home
+                SelectLevel(levelID);
+                location.href = "/Src/Home/home.html";
+            }
         }
 
         main.append(levelElement);

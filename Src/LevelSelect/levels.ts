@@ -1,7 +1,6 @@
 //file storing all levels
 const LEVEL_PROGRESS_SAVE_KEY = "levelProgress";
 const CURRENT_SELECTED_LEVEL_SAVE_KEY = "currentlySelectedLevel";
-const DIAMOND_STORAGE_KEY = "diamonds";
 
 interface Level { //don't need to store level ID within level object itself
     referenceImagePath: string;   
@@ -102,6 +101,10 @@ const PASS_THRESHOLD = 63;
 
 
 //Diamond storage
+const DIAMOND_STORAGE_KEY = "diamonds";
+const DIAMONDS_EARNED_PER_PASS = 1;
+const DIAMOND_LEVEL_COST = 2;
+
 const GetDiamonds = () => {
     const diamondsString = localStorage.getItem(DIAMOND_STORAGE_KEY);
     if (diamondsString == undefined) {

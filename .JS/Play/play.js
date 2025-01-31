@@ -142,15 +142,21 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
         const currentLevelIDIndex = levelIDs.indexOf(CURRENTLY_SELECTED_LEVEL_ID);
         if (currentLevelIDIndex < (levelIDs.length - 1)) {
             const nextLevelID = levelIDs[currentLevelIDIndex + 1];
-            LEVEL_PROGRESS[nextLevelID].unlocked = true;
-            feedback += `You passed and unlocked level ${nextLevelID}\n\n`;
+            if (LEVEL_PROGRESS[nextLevelID].unlocked == true) { //use already purchased next level
+                feedback += `You passed, and have already unlocked level ${nextLevelID}\n\n`;
+            }
+            else {
+                LEVEL_PROGRESS[nextLevelID].unlocked = true;
+                feedback += `You passed and unlocked level ${nextLevelID}\n\n`;
+            }
         }
         else {
             feedback += `You've completed all the levels\n\n`;
         }
+        SaveLevelProgress(LEVEL_PROGRESS);
         //provide 1 diamond
         feedback += "You earned 1 diamond\n\n";
-        DIAMONDS += 1;
+        DIAMONDS += DIAMONDS_EARNED_PER_PASS;
         SaveDiamonds(DIAMONDS);
     }
     //detect if user hasn't passed yet
@@ -163,7 +169,6 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
             feedback += `Try again to improve your high score, currently at ${Math.round(currentHighestSimilarty)}\n\n`;
         }
     }
-    SaveLevelProgress(LEVEL_PROGRESS);
     feedbackElement.innerText = feedback;
 };
 const MainPlay = async () => {
