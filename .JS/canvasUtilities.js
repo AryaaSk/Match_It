@@ -17,8 +17,10 @@ class Canvas {
         this.canvas.setAttribute('width', String(this.canvasWidth * dpi));
         this.canvasHeight *= dpi;
         this.canvasWidth *= dpi;
+        this.c.lineJoin = "round"; //smooth lines when drawing
+        this.c.lineCap = "round";
         document.body.onresize = () => {
-            this.linkCanvas(canvasID);
+            //this.linkCanvas(canvasID); //no need to resize since canvas size is fixed
         };
     };
     //ACTUAL DRAWING FUNCTIONS - MatterJS doesn't use ScreenX and ScreenY, so I disabled those functions

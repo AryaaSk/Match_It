@@ -309,3 +309,5 @@ window.addEventListener("DOMContentLoaded", () => {
         MainPlay();
     });
 });
+
+window.addEventListener

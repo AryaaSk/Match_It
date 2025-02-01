@@ -19,9 +19,12 @@ class Canvas {
 
         this.canvasHeight *= dpi;
         this.canvasWidth *= dpi;
+
+        this.c.lineJoin = "round"; //smooth lines when drawing
+        this.c.lineCap = "round";
         
         document.body.onresize = () => {
-            this.linkCanvas(canvasID);
+            //this.linkCanvas(canvasID); //no need to resize since canvas size is fixed
         }
     }
 
