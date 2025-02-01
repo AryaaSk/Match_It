@@ -151,7 +151,9 @@ canvas {
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 50px 81px 81px auto;
-    place-items: center;
+}
+#results > .gridChild {
+    place-content: center;
 }
 
 #backToLeaderboard {
