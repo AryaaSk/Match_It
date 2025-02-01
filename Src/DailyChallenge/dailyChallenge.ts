@@ -43,11 +43,28 @@ const GetUserScore = async (userID: string): Promise<null | number> => {
         return userEntry.score;
     }
 }
+const GetUserRank  = (userID: string, sortedLeaderboard: [string, LeaderboardEntry][]): null | number => {
+    //find index of user in sorted leaderboard (return null if not found)
+    //implement using linear search
+    for (let i = 0; i != sortedLeaderboard.length; i += 1) {
+        if (sortedLeaderboard[i][0] == userID) {
+            return (i + 1); //1-indexed
+        }
+    }
 
-const UpdateUserScore = (username: string, score: null | number) => {
-    const userScoreElement = document.getElementById("userScore")!;
-    const userScore = score == null ? '-' : String(score);
-    userScoreElement.innerText = `${username}; Score: ${userScore}`;
+    return null;
+}
+
+const UpdateUserScore = (username: string, rank: null | number, score: null | number) => {
+    const userScoreElement = document.getElementById("playerScore")!;
+    const userRank = rank == null ? '-' : "#" + String(rank);
+    const userScore = score == null ? '-' : String(Math.round(score * 10) / 10);
+
+    userScoreElement.innerHTML = `<div></div>
+                <div>${userRank}</div>
+                <div>${username}</div>
+                <div>${userScore}</div>
+                <div></div>`;
 }
 
 
@@ -63,27 +80,44 @@ const GetLeaderboard = async () => {
     }
 }
 
-const DisplayLeaderboard = async (leaderboard: { [ userID: string ] : LeaderboardEntry }) => {
+const SortLeaderboard = (leaderboard: { [ userID: string ] : LeaderboardEntry }): [string, LeaderboardEntry][] => {
     //we need to order leaderboard by score
     const leaderboardArray = Object.entries(leaderboard);
     leaderboardArray.sort((a, b) => b[1].score - a[1].score); //descending order
+    return leaderboardArray;
+}
 
+const DisplayLeaderboard = async (leaderboardArray: [string, LeaderboardEntry][]) => {
     //retrieve displayname uuid mapping
     const displayNameMapping = await FirebaseRead(`displayNames`) as { [uuid: string]: { displayName: string } };
 
     const leaderboardList = document.getElementById("leaderboard")!;
     leaderboardList.innerHTML = "";
     
-    for (const pair of leaderboardArray) {
+    for (const [i, pair] of leaderboardArray.entries()) {
         const listElement = document.createElement("li");
+        listElement.className = "leaderboardRow";
 
         //try to retrieve name
         const userID = pair[0];
         const name = displayNameMapping[userID] == undefined ? userID :displayNameMapping[userID].displayName; 
         const score = Math.round(pair[1].score * 10) / 10; //1 dp
+        const rank = i + 1; //1-indexed
 
-        listElement.innerText = `${name}: ${score}`;
+        listElement.innerHTML = `<div></div>
+                <div>#${rank}</div>
+                <div>${name}</div>
+                <div>${score}</div>
+                <div></div>`;
         leaderboardList.append(listElement);
+    }
+
+    //if there have been no players yet
+    if (leaderboardArray.length == 0) {
+        const emptyElement = document.createElement("div");
+        emptyElement.className = "leaderboardRow emptyRow";
+        emptyElement.innerHTML = "Nobody has played yet... You will become #1!";
+        leaderboardList.append(emptyElement);
     }
 }
 
@@ -119,21 +153,23 @@ const InitTimeLeft = () => {
         const timeLeftMinutes = Math.floor((timeLeftMS / (1000 * 60)) % 60);
         const timeLeftHours = Math.floor((timeLeftMS / (1000 * 60 * 60)));
         
-        timeLeftElement.innerText = `Time left: ${timeLeftHours}h ${timeLeftMinutes}m ${timeLeftSeconds}s`;
+        timeLeftElement.innerText = `${timeLeftHours}h ${timeLeftMinutes}m ${timeLeftSeconds}s`;
     }, 1000);
 }
 
 
 
 const MainDailyChallenge = async () => {
-    //display user's position
-    const displayName = await GetDisplayName(UUID);
-    const userScore = await GetUserScore(UUID);
-    UpdateUserScore(displayName, userScore);
-
     //display leaderboard
     const leaderboard = await GetLeaderboard();
-    await DisplayLeaderboard(leaderboard);
+    const sortedLeaderboard = SortLeaderboard(leaderboard);
+    await DisplayLeaderboard(sortedLeaderboard);
+
+    //display user's position
+    const displayName = await GetDisplayName(UUID);
+    const rank = GetUserRank(UUID, sortedLeaderboard);
+    const userScore = await GetUserScore(UUID);
+    UpdateUserScore(displayName, rank, userScore);
 
     InitDailyChallengeListeners();
     InitTimeLeft();

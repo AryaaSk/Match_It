@@ -2,9 +2,18 @@ body {
     text-align: center;
     --clearColour: red;
     --clearColourActive: darkred;
-    --loaderColour: rgb(43, 143, 236);
 
     touch-action: none;
+}
+
+#main {
+    height: max-content;
+    width: max-content;
+
+    position: absolute;
+    top: calc(50% - 10px);
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 canvas {
@@ -50,6 +59,7 @@ canvas {
 
     border: none;
     background-color: var(--clearColour);
+    border-radius: 10px;
     color: white;
 }
 #clear:active {
@@ -66,10 +76,12 @@ canvas {
     right: 10px;
     z-index: 1;
 
-    background-color: lightgray;
-    font-size: x-large;
     display: grid;
     place-content: center;
+
+    background-color: lightgray;
+    border-radius: 10px;
+    font-size: x-large;
 }
 
 
@@ -87,21 +99,30 @@ canvas {
 #resultsPopup {
     position: fixed;
     height: 70vh;
-    left: 15px;
-    right: 15px;
+    left: 42px;
+    right: 42px;
     top: 50%;
-    z-index: 2;
+
+    padding: 20px;
+    padding-bottom: 42px;
 
     transform: translate(0, -50%);
+    z-index: 2;
 
-    background-color: whitesmoke;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto max-content;
+
+    background-color: #333333;
     border-radius: 10px;
+    color: whitesmoke;
 }
 #feedbackCanvas {
     height: 250px;
     width: 250px;
 
     border: 3px solid black;
+    background-color: white;
 }
 
 
@@ -112,7 +133,7 @@ canvas {
     margin-bottom: 9px;
 
     border: 9px solid #f3f3f3;
-    border-top: 9px solid var(--loaderColour);
+    border-top: 9px solid var(--themeColour);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -120,4 +141,40 @@ canvas {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+
+#results {
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 50px 81px 81px auto;
+    place-items: center;
+}
+
+#backToLeaderboard {
+    height: 30px;
+    width: 95%;
+
+    margin-top: 10px;
+    margin-bottom: 15px;
+
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(var(--themeColour), var(--themeColourDark));
+
+    font-size: medium;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+#backToLeaderboard:active {
+    background: var(--themeColourDark);
+}
+
+
+#feedback {
+    font-size: large;
 }

@@ -12,6 +12,16 @@ body {
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+
+    --levelWidth: 100px;
+    --levelHeight: 100px;
+
+    --levelColourLocked: grey;
+    --levelColour: rgb(255, 97, 97);
+    --levelColourPassed: rgb(1, 167, 1);
+
+    --themeColour: rgb(11, 169, 231);
+    --themeColourDark: rgb(10, 150, 206);
 }
 
 .flexCenter {
@@ -27,4 +37,10 @@ body {
 .gridChild {
     height: 100%;
     width: 100%;
+}
+
+.borderBox {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }

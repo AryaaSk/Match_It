@@ -17,25 +17,60 @@
 </head>
 <body>
 
-    <br>
-    <h1 id="userScore">User 123; Score: 100</h1>
-    <br>
+    <div id="main">
+        <div id="header">
+            <h1 style="margin-top: 10px;">Match It</h1>
+            <h3 style="margin-bottom: 3px;">Daily Challenge</h3>
+            <h6 id="timeLeft">0h 0m 0s</h6>
 
-    <button id="changeName">Change Display Name</button>
-    <br>
-    <br>
-    
-    <button id="playChallenge">Play Challenge</button>
-    <br>
+            <button id="playChallenge">Play</button>
+        </div>
+        <div></div>
 
-    <br>
-    <h1>Leaderboard</h1>
-    <h3 id="timeLeft">Time left: </h3>
-    <br>
 
-    <ol id="leaderboard">
-        <!-- Added dynamically -->
-    </ol>
+        <div class="leaderboardRow title">
+            <div></div>
+            <div>Rank</div>
+            <div>Name</div>
+            <div>Score</div>
+            <div></div>
+        </div>
+
+        <div id="leaderboard">
+            <!--
+            <div class="leaderboardRow emptyRow">
+                Nobody has played yet... You will become #1!
+            </div>
+            -->
+            
+            <!--
+            <div class="leaderboardRow">
+                <div></div>
+                <div>#1</div>
+                <div>Player</div>
+                <div>99.1</div>
+                <div></div>
+            </div>
+            -->
+
+            <!-- Added dynamically -->
+        </div>
+
+        <div id="player" class="borderBox">
+            <div></div>
+            <div class="leaderboardRow player" id="playerScore">
+                <div></div>
+                <div>#1</div>
+                <div>Player</div>
+                <div>99.1</div>
+                <div></div>
+            </div>
+
+            <div class="gridChild flexCenter">
+                <button id="changeName">Change Name</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

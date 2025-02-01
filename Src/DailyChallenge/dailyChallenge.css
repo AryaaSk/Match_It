@@ -1,9 +1,117 @@
 body {
     text-align: center;
+    color: whitesmoke;
+    zoom: 140%;
 }
 
-#leaderboard {
-    width: 300px;
+#main {
+    height: 100%;
+    width: 100%;
 
-    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: max-content 3px 30px auto 100px;
+
+    background-color: #222222;
+}
+
+#header {
+    height: 100%;
+    background-color: #333333;
+    border-bottom: 1px solid #444444;
+}
+
+#playChallenge {
+    height: 30px;
+    width: 95%;
+
+    margin-top: 10px;
+    margin-bottom: 15px;
+
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(var(--themeColour), var(--themeColourDark));
+
+    font-size: large;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+#playChallenge:active {
+    background: var(--themeColourDark);
+}
+
+
+
+#leaderboard {
+    height: 100%;
+    width: 100%;
+
+    overflow-y: auto;
+}
+.leaderboardRow {
+    height: 30px;
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 15px 50px auto 50px 15px;
+    grid-template-rows: 100%;
+    place-items: center;
+
+    font-size: medium;
+    color: white;
+}
+.title {
+    height: 100%;
+
+    color: lightgrey;
+    font-size: small;
+}
+.emptyRow {
+    grid-template-columns: 100%;
+    font-size: small;
+}
+.leaderboardRow > div {
+    width: 100%;
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 2;  /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+
+#player {
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 6px max-content auto 10px;
+
+    background-color: #333333;
+    box-shadow: 0px -6px 15px rgba(0, 0, 0, 0.3);
+    border-top: 1px solid #444444;
+
+    font-weight: bold;
+}
+.player {
+    font-size: x-large;
+}
+#changeName {
+    height: 25px;
+    width: 95%;
+
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(whitesmoke, lightgrey);
+
+    font-size: small;
+    font-weight: bold;
+    color: #252525;
+    cursor: pointer;
+}
+#changeName:active {
+    background: linear-gradient(lightgrey, lightgrey);
 }
