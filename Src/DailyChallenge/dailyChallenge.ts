@@ -107,7 +107,7 @@ const InitDailyChallengeListeners = (attemptsRemaining: number) => {
         if (navigator.share) {
             navigator.share({
                 title: "Match It Daily Challenge",
-                text: "Draw the shape for cash in the Match It Daily Challenge!",
+                text: "Draw the shape for cash!",
                 url: shareLink
             })
             .then(() => console.log("Shared successfully"))

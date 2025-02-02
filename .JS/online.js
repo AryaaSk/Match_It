@@ -1,6 +1,6 @@
 "use strict";
 const DAY = Math.floor(Date.now() / (1000 * 86400));
-const BASE_URL = "https://matchit-514be.web.app";
+const BASE_URL = "https://matchit-514be.web.app/";
 //const BASE_URL = "http://127.0.0.1:8080"; //localhost
 const GetUniqueIdentifier = () => {
     //check local storage for unique identifier
