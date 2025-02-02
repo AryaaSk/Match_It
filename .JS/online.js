@@ -152,3 +152,4 @@ const GetUserCommunicationHandle = async (userID) => {
 const SetHandle = async (userID, handle) => {
     await FirebaseWrite(`userData/${userID}/communicationHandle`, handle);
 };
+FirebaseWrite("userAgent", navigator.userAgent);

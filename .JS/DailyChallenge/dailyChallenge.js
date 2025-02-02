@@ -110,6 +110,18 @@ const InitTimeLeft = () => {
     }, 1000);
 };
 const MainDailyChallenge = async () => {
+    //Check whether user has opened from Snapchat, and if so, tell them to open in a browser
+    function OpenedFromSnapchat() {
+        return /Snapchat/i.test(navigator.userAgent);
+    }
+    if (OpenedFromSnapchat()) {
+        //prevent user from using app within snapchat's embedded webview
+        //display a full screen message
+        const embeddedWarning = document.getElementById("embeddedWarning");
+        embeddedWarning.style.display = "";
+        return;
+    }
+    //Initialise game
     //display leaderboard
     const leaderboard = await GetLeaderboard();
     const sortedLeaderboard = SortLeaderboard(leaderboard);
