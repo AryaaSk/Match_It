@@ -124,7 +124,7 @@ const InitPopupListeners = () => {
 
     const backToLeaderboardButton = document.getElementById("backToLeaderboard")!;
     backToLeaderboardButton.onpointerdown = () => {
-        location.href = "/Src/DailyChallenge/dailyChallenge.html";
+        location.href = `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
     }
 }
 
@@ -248,7 +248,9 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
             if (maxSimilarity > userScore) { //update database
                 //await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity, canvasData: { userCanvasRaw: userCanvasRawCanvasDataJSON, width: width } });
                 await FirebaseWrite(`leaderboards/${DAY}/${UUID}`, { score: maxSimilarity }); //canvasdata seems too long for firebase to support
-                feedback += "Your high score has been updated on the leaderboard, go back to find out where you placed!\n\n";
+                feedback += "NEW PERSONAL BEST!\n\n";
+
+                feedback += "Go back to the leaderboard to find out where you placed.\n\n"
             }
             else {
                 feedback += "You didn't beat your high score this time, keep trying!\n\n"

@@ -84,8 +84,6 @@ const InitDailyChallengeListeners = (attemptsRemaining) => {
         const shareLink = BASE_URL + `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
         if (navigator.share) {
             navigator.share({
-                title: "Match It Daily Challenge",
-                text: "Draw the shape for cash!",
                 url: shareLink
             })
                 .then(() => console.log("Shared successfully"))
@@ -107,7 +105,7 @@ const InitTimeLeft = () => {
         const timeLeftSeconds = Math.floor((timeLeftMS / 1000) % 60);
         const timeLeftMinutes = Math.floor((timeLeftMS / (1000 * 60)) % 60);
         const timeLeftHours = Math.floor((timeLeftMS / (1000 * 60 * 60)));
-        timeLeftElement.innerText = `${timeLeftHours}h ${timeLeftMinutes}m ${timeLeftSeconds}s`;
+        timeLeftElement.innerText = `${timeLeftHours}h ${timeLeftMinutes}m ${timeLeftSeconds}s until payout`;
     }, 1000);
 };
 const MainDailyChallenge = async () => {
@@ -136,7 +134,38 @@ const MainDailyChallenge = async () => {
         }
         location.reload(); //reload page whenever user gets a new attempt from somebody else
     });
+    setTimeout(async () => {
+        //Check whether user is ranked #1, and check for communication handle
+        if (rank == 1) {
+            const handle = await GetUserCommunicationHandle(UUID);
+            if (handle == null) { //need to get handle
+                const AskForHandle = () => {
+                    const handle = prompt("You have ranked #1. Please provide a communication method (e.g. email, phone number, instagram, etc...) so that you can be contacted if you win the prize.");
+                    if (handle == undefined || handle.replaceAll(" ", "") == "") {
+                        return AskForHandle();
+                    }
+                    return handle;
+                };
+                const newHandle = AskForHandle();
+                await SetHandle(UUID, newHandle);
+            }
+        }
+        //check whether user has 2 or fewer attempts, and if their name still starts with 'matchit...';
+        if (attempts <= (DEFAULT_ATTEMPTS - 3) && displayName.startsWith("MatchIt")) {
+            const AskForName = () => {
+                const name = prompt("Enter your display name!");
+                if (name == undefined || name.replaceAll(" ", "") == "") {
+                    return AskForName();
+                }
+                return name;
+            };
+            const name = AskForName();
+            await SetDisplayName(UUID, name);
+            location.reload();
+        }
+    }, 100);
     InitDailyChallengeListeners(attempts);
     InitTimeLeft();
 };
 MainDailyChallenge();
+1;

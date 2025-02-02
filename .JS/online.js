@@ -145,3 +145,10 @@ const HandleUserLink = async (fromUUID) => {
     //add a flag in attempt grants for current DAY
     await FirebaseWrite(`userData/${fromUUID}/attemptGrants/${DAY}/${UUID}`, true);
 };
+const GetUserCommunicationHandle = async (userID) => {
+    const handle = await FirebaseRead(`userData/${userID}/communicationHandle`);
+    return handle;
+};
+const SetHandle = async (userID, handle) => {
+    await FirebaseWrite(`userData/${userID}/communicationHandle`, handle);
+};

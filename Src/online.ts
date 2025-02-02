@@ -186,3 +186,11 @@ const HandleUserLink = async (fromUUID: string) => {
     await FirebaseWrite(`userData/${fromUUID}/attemptGrants/${DAY}/${UUID}`, true);
 }
 
+const GetUserCommunicationHandle = async (userID: string): Promise<string | null> => {
+    const handle = await FirebaseRead(`userData/${userID}/communicationHandle`) as string | null;
+    return handle;
+}
+
+const SetHandle = async (userID: string, handle: string) => {
+    await FirebaseWrite(`userData/${userID}/communicationHandle`, handle);
+}

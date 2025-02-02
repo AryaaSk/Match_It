@@ -2,8 +2,6 @@ body {
     text-align: center;
     --clearColour: red;
     --clearColourActive: darkred;
-
-    touch-action: none;
 }
 
 #main {

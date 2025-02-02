@@ -2,7 +2,18 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Link sharing properties -->
+    <meta property="og:title" content="Match It Daily Challenge!" />
+    <meta property="og:description" content="Draw today's shape and win money." />
+    <meta property="og:image" content="https://matchit-514be.web.app/Assets/Logo.png" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/Assets/Logo.png">
+
     <title>Match It</title>
 
     <!-- Firebase -->
@@ -21,7 +32,7 @@
         <div id="header">
             <h1 style="margin-top: 10px;">Match It</h1>
             <h3 style="margin-bottom: 3px;">Daily Challenge</h3>
-            <h6 id="timeLeft">0h 0m 0s</h6>
+            <h6 id="timeLeft">0h 0m 0s until payout</h6>
 
             <h2 id="moneyLine">#1 = £20</h4>
 

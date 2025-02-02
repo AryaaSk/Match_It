@@ -13,6 +13,8 @@ body {
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 
+    touch-action: none;
+
     --levelWidth: 100px;
     --levelHeight: 100px;
 

@@ -23,7 +23,7 @@ const InitListeners = () => {
 
     const dailyChallenge = document.getElementById("dailyChallenge")!;
     dailyChallenge.onclick = () => {
-        location.href = "/Src/DailyChallenge/dailyChallenge.html";
+        location.href = `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
     }
 }
 
