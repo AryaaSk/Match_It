@@ -104,6 +104,7 @@ const InitDailyChallengeListeners = (attemptsRemaining: number) => {
     shareLinkButton.onclick = () => {
         //generate link and send to shareboard
         const shareLink = BASE_URL + `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
+        //could also just use location.href
         if (navigator.share) {
             navigator.share({
                 url: shareLink
@@ -153,6 +154,11 @@ const MainDailyChallenge = async () => {
     if (fromUUID != null) {
         await HandleUserLink(fromUUID);
     }
+
+    //reset URL UUID back to current user's
+    let newParams = new URLSearchParams(window.location.search);
+    newParams.set('UUID', UUID);
+    history.replaceState(null, '', '?' + newParams.toString());
 
     //retrieve current user's attempts
     const attempts = await GetUserAttempts(UUID);

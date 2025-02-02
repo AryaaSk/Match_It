@@ -102,7 +102,7 @@ const InitPopupListeners = () => {
     };
     const backToLeaderboardButton = document.getElementById("backToLeaderboard");
     backToLeaderboardButton.onpointerdown = () => {
-        location.href = `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
+        location.href = `/Src/DailyChallenge/dailyChallenge.html`;
     };
 };
 const loaderWrapper = document.getElementById("loaderWrapper");
