@@ -126,15 +126,26 @@ const ShowSingleplayerControls = () => {
     singleplayerControls.style.display = "";
     dailyChallengeControls.style.display = "none";
 };
-const ShowDailyChallengeControls = () => {
+const ShowDailyChallengeControls = (attemptsRemaining) => {
     singleplayerControls.style.display = "none";
     dailyChallengeControls.style.display = "";
+    //show play again button if attemptsRemaining > 0
+    const playAgainButton = document.getElementById("playAgainLeaderboard");
+    if (attemptsRemaining <= 0) {
+        playAgainButton.style.display = "none";
+    }
+    playAgainButton.innerHTML = `<span style="font-size: x-large;">Play Again</span> <br> <h4>${attemptsRemaining} attempt${attemptsRemaining == 1 ? '' : 's'} left</h4>`;
+    playAgainButton.onpointerdown = () => {
+        location.reload();
+    };
 };
 const feedbackElement = document.getElementById("feedback");
 const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) => {
-    const referenceCanvasRaw = SimplifyRawImage(Array.from(referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight).data), CANVAS_SIZE * dpi);
-    const userCanvasRawCanvasData = Array.from(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight).data);
-    const userCanvasRaw = SimplifyRawImage(userCanvasRawCanvasData, CANVAS_SIZE * dpi);
+    //instead of trying to downscale canvas images manually, we can just let the Canvas API do the work and render both canvases to 250x250 hidden canvases
+    const scaledReferenceCanvasData = Array.from(GetRescaledCanvasData(referenceCanvas, 1 / dpi));
+    const scaledUserCanvasData = Array.from(GetRescaledCanvasData(userCanvas, 1 / dpi));
+    const referenceCanvasRaw = ExtractAlphaValues(scaledReferenceCanvasData);
+    const userCanvasRaw = ExtractAlphaValues(scaledUserCanvasData);
     const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, CANVAS_SIZE, CANVAS_SIZE, progressCallback);
     const similarityLabel = document.getElementById("similarityLabel");
     similarityLabel.innerText = `Similarity: ${Math.round(maxSimilarity)}`;
@@ -199,8 +210,8 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
             const userScoreDB = await GetUserScore(UUID);
             const userScore = userScoreDB == null ? -Infinity : userScoreDB;
             //encoding canvas data
-            const userCanvasRawCanvasDataJSON = JSON.stringify(userCanvasRawCanvasData);
-            const width = CANVAS_SIZE * dpi;
+            //const userCanvasRawCanvasDataJSON = JSON.stringify(userCanvasRawCanvasData);
+            //const width = CANVAS_SIZE * dpi;
             if (maxSimilarity > userScore) { //update database
                 //await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity, canvasData: { userCanvasRaw: userCanvasRawCanvasDataJSON, width: width } });
                 await FirebaseWrite(`leaderboards/${DAY}/${UUID}`, { score: maxSimilarity }); //canvasdata seems too long for firebase to support
@@ -241,7 +252,10 @@ const MainPlay = async () => {
         ShowSingleplayerControls();
     }
     else {
-        ShowDailyChallengeControls();
+        //user will only see this button once the round ends, at which point the number of attempts would've decreased by 1
+        //however we initialise the play again button at the start of the round, hence why we subtract 1
+        const attemptsLeft = await GetUserAttempts(UUID) - 1;
+        ShowDailyChallengeControls(attemptsLeft);
     }
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);
@@ -271,4 +285,3 @@ window.addEventListener("DOMContentLoaded", () => {
         MainPlay();
     });
 });
-window.addEventListener;

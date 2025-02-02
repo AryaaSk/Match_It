@@ -1,5 +1,26 @@
 const CANVAS_SIZE = 250;
 
+const GetRescaledCanvasData = (canvas: Canvas, scaleFactor: number) => {
+    //e.g. input canvas may be 900x900, and if scale factor is 1/3, we will re-draw contents to a 300x300 canvas
+    const newWidth = canvas.canvasWidth * scaleFactor;
+    const newHeight = canvas.canvasHeight * scaleFactor;
+
+    const scaledCanvas = document.createElement("canvas");
+    scaledCanvas.width = newWidth;
+    scaledCanvas.height = newHeight;
+
+    const scaledCanvasContext = scaledCanvas.getContext("2d")!;
+    scaledCanvasContext.drawImage(canvas.canvas, 0, 0, canvas.canvasWidth, canvas.canvasHeight, 0, 0, newWidth, newHeight);
+
+    const canvasData = scaledCanvasContext.getImageData(0, 0, newWidth, newHeight).data;
+    return canvasData
+}
+
+const ExtractAlphaValues = (rawData: number[]) => {
+    const alphaValuesOnly = rawData.filter((val, index) => index % 4 == 3); //take 4th element from every group of 4
+    const divdedBy255 = alphaValuesOnly.map((value) => Math.ceil(value / 255)); //array will only contain 0 or 255, so 'normalise' to 0 and 1
+    return divdedBy255;
+}
 
 const SimplifyRawImage = (rawData: number[], width: number) => {
     //we can now use this downscaled data

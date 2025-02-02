@@ -148,13 +148,13 @@ canvas {
 
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: 25px 63px 63px auto;
+    grid-template-rows: 15px 63px max-content auto;
 }
 #results > .gridChild {
     place-content: center;
 }
 
-#backToLeaderboard {
+.resultButton {
     height: 30px;
     width: 95%;
 
@@ -163,15 +163,29 @@ canvas {
 
     border: none;
     border-radius: 5px;
-    background: linear-gradient(var(--themeColour), var(--themeColourDark));
+    
 
     font-size: medium;
     font-weight: bold;
     color: white;
     cursor: pointer;
 }
+
+#playAgainLeaderboard {
+    height: max-content;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    background: linear-gradient(var(--themeColour), var(--themeColourDark));
+}
+#playAgainLeaderboard:active {
+    background: linear-gradient(var(--themeColourDark), var(--themeColourDark));
+}
+#backToLeaderboard {
+    color: #252525;
+    background: linear-gradient(whitesmoke, lightgrey);
+}
 #backToLeaderboard:active {
-    background: var(--themeColourDark);
+    background: linear-gradient(lightgrey, lightgrey);
 }
 
 
