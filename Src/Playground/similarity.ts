@@ -248,7 +248,7 @@ const DISPLAY_OVERLAY = (dx: number, dy: number, referenceCanvas: Canvas, userCa
 
     //merge canvas1 and canvas2 data
     const canvas1ImageData = referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight);
-    const canvas2ImageData = offsetImageData(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight), dx*dpi, dy*dpi);
+    const canvas2ImageData = offsetImageData(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight), Math.round(dx*dpi), Math.round(dy*dpi));
 
     for (let i = 0; i < canvas1ImageData.data.length; i += 4) {
         if (canvas1ImageData.data[i + 3] == 0 && canvas2ImageData.data[i + 3] == 0) {
@@ -267,7 +267,7 @@ const DISPLAY_OVERLAY = (dx: number, dy: number, referenceCanvas: Canvas, userCa
         }
     }
 
-    feedbackCanvas.c.putImageData(canvas1ImageData, 0, 0);
+    feedbackCanvas.c.putImageData(canvas1ImageData, 0, 0, );
 }
 
 
