@@ -22,6 +22,9 @@ body {
 
     --themeColour: rgb(11, 169, 231);
     --themeColourDark: rgb(10, 150, 206);
+
+    --secondaryThemeColour: rgb(161, 0, 161);
+    --secondaryThemeColourDark: rgb(126, 0, 126);
 }
 
 .flexCenter {

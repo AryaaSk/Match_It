@@ -105,12 +105,24 @@ const CalculateSimilarity = (reference: number[], userDrawn: number[]) => {
             numberOfBlackPixelsInReference += 1;
         }
     }
-
-    const blackWeighting = 10;
+ 
     //const similarity = Math.max(sharedBlackPixels * blackWeighting - differentPixels, 0);
-    const similarity = sharedBlackPixels * blackWeighting - differentPixels;
-    const similarityNormalised = similarity / numberOfBlackPixelsInReference * blackWeighting
-    return similarityNormalised;
+    //const similarity = BlackWeightingCurve(sharedBlackPixels) - DifferentPixelsCurve(differentPixels);
+    //const similarityNormalised = similarity / numberOfBlackPixelsInReference * 10;
+    //console.log(similarityNormalised)
+    //const similarityNormalised = similarity / BlackWeightingCurve(numberOfBlackPixelsInReference);
+    //const similarityNormalised = 1 - (DifferentPixelsCurve(differentPixels) / BlackWeightingCurve(sharedBlackPixels));
+
+    //similarity algorithm:
+    //we want the user to maximimse the number of shared black pixels, and minimise the number of different pixels
+    //max of sharedBlackPixels = black pixels in reference
+
+    //since the user's brush is slightly larger than the reference, and the user is not perfect, we should weight different pixels
+    //sightly less
+    const differentPixelsWeighting = 0.2;
+    const similarity = (sharedBlackPixels - differentPixels * differentPixelsWeighting) / numberOfBlackPixelsInReference * 100;
+
+    return similarity;
 }
 
 const Similarity = (reference: number[], userImage: number[], width: number, height: number, dx: number, dy: number) => {
@@ -124,10 +136,16 @@ const MaximiseSimilarity = async (reference: number[], userImage: number[], widt
     let dx = initialdx;
     let dy = initialdy;
 
+    let [maxSimilariy, maxDX, maxDY] = [-Infinity, 0, 0];
+
     for (let _ = 0; _ < 10; _ += 1) {
         //DISPLAY_OVERLAY(dx, dy);
         //check similarity with update
         const similarity = Similarity(reference, userImage, width, height, dx, dy);
+
+        if (similarity > maxSimilariy) {
+            [maxSimilariy, maxDX, maxDY] = [similarity, dx, dy];
+        }
         //console.log(`dx: ${dx}, dy: ${dy}, Similarity: ${similarity}`);
         //await Wait(100);
 
@@ -140,7 +158,7 @@ const MaximiseSimilarity = async (reference: number[], userImage: number[], widt
         const magnitude = Math.sqrt(gradientWRTdx**2 + gradientWRTdy**2);
         if (magnitude == 0) {
             console.log("Zero gradient vector. Ending gradient descent")
-            return [similarity, dx, dy]; //we have reached a turning point; or we were initialised in a flat region.
+            return [maxSimilariy, maxDX, maxDY]; //we have reached a turning point; or we were initialised in a flat region.
         }
 
         const normalisedGradientWRTdx = gradientWRTdx / magnitude;
@@ -156,7 +174,7 @@ const MaximiseSimilarity = async (reference: number[], userImage: number[], widt
         dy = Math.round(dy);
     }
 
-    return [Similarity(reference, userImage, width, height, dx, dy), dx, dy];
+    return [maxSimilariy, maxDX, maxDY];
 }
 
 const Wait = (ms: number) => {

@@ -150,7 +150,7 @@ canvas {
 
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: 50px 81px 81px auto;
+    grid-template-rows: 25px 63px 63px auto;
 }
 #results > .gridChild {
     place-content: center;

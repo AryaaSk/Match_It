@@ -186,14 +186,30 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
         }
     }
     else { //DAILY CHALLENGE == true
-        //update the database with the user's score
-        const day = Math.floor(Date.now() / (1000 * 86400));
-        //encoding canvas data
-        const userCanvasRawCanvasDataJSON = JSON.stringify(userCanvasRawCanvasData);
-        const width = CANVAS_SIZE * dpi;
-        //await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity, canvasData: { userCanvasRaw: userCanvasRawCanvasDataJSON, width: width } });
-        await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity }); //canvasdata seems too long for firebase to support
-        feedback += "Your score has been updated on the leaderboard, go back to find out where you placed!\n\n";
+        //reduce number of attempts by one
+        const numberOfAttempts = await GetUserAttempts(UUID);
+        if (numberOfAttempts <= 0) {
+            feedback += "Round doesn't count as you don't have any attempts remaining.\n\n";
+        }
+        else {
+            const newNumberOfAttempts = numberOfAttempts - 1;
+            await SetAttempts(UUID, newNumberOfAttempts);
+            //update the database with the user's score
+            //check user's current score
+            const userScoreDB = await GetUserScore(UUID);
+            const userScore = userScoreDB == null ? -Infinity : userScoreDB;
+            //encoding canvas data
+            const userCanvasRawCanvasDataJSON = JSON.stringify(userCanvasRawCanvasData);
+            const width = CANVAS_SIZE * dpi;
+            if (maxSimilarity > userScore) { //update database
+                //await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity, canvasData: { userCanvasRaw: userCanvasRawCanvasDataJSON, width: width } });
+                await FirebaseWrite(`leaderboards/${DAY}/${UUID}`, { score: maxSimilarity }); //canvasdata seems too long for firebase to support
+                feedback += "Your high score has been updated on the leaderboard, go back to find out where you placed!\n\n";
+            }
+            else {
+                feedback += "You didn't beat your high score this time, keep trying!\n\n";
+            }
+        }
     }
     feedbackElement.innerText = feedback;
 };

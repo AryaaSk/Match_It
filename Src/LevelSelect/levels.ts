@@ -97,8 +97,11 @@ const LEVELS: { [ levelID: string ]: Level } = {
         referenceImagePath: "/Assets/References/Cuboid.png"
     },
     "6": {
+        referenceImagePath: "/Assets/References/Triangle.png"
+    },
+    "7": {
         referenceImagePath: "/Assets/References/Superman.png"
-    }
+    },
 }
 
 
@@ -106,7 +109,7 @@ const LEVELS: { [ levelID: string ]: Level } = {
 let LEVEL_PROGRESS: { [levelID: string]: LevelProgress } = RetrieveLevelProgress();
 let CURRENTLY_SELECTED_LEVEL_ID = GetCurrentlySelectedLevel();
 
-const PASS_THRESHOLD = 63;
+const PASS_THRESHOLD = 50;
 
 
 //Diamond storage

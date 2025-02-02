@@ -1,44 +1,5 @@
 "use strict";
-const DAY = Math.floor(Date.now() / (1000 * 86400));
-const GetDisplayName = async (userID) => {
-    const displayName = await FirebaseRead(`displayNames/${userID}/displayName`);
-    if (displayName == null) {
-        const randomName = GenerateRandomName(); //if we can't find name, generate random name
-        await SetDisplayName(userID, randomName);
-        return randomName;
-    }
-    else {
-        return displayName;
-    }
-};
-const SetDisplayName = async (userID, name) => {
-    await FirebaseWrite(`displayNames/${userID}`, { displayName: name });
-};
-const GenerateRandomName = () => {
-    const randomNumber = String(Math.floor(Math.random() * 1000));
-    return `MatchIt${randomNumber}`;
-};
-const GetUserScore = async (userID) => {
-    //retrieve user's score
-    const userEntry = await FirebaseRead(`leaderboards/${DAY}/${userID}`);
-    if (userEntry == null) {
-        return null;
-    }
-    else {
-        //@ts-expect-error
-        return userEntry.score;
-    }
-};
-const GetUserRank = (userID, sortedLeaderboard) => {
-    //find index of user in sorted leaderboard (return null if not found)
-    //implement using linear search
-    for (let i = 0; i != sortedLeaderboard.length; i += 1) {
-        if (sortedLeaderboard[i][0] == userID) {
-            return (i + 1); //1-indexed
-        }
-    }
-    return null;
-};
+const DEFAULT_ATTEMPTS = 5;
 const UpdateUserScore = (username, rank, score) => {
     const userScoreElement = document.getElementById("playerScore");
     const userRank = rank == null ? '-' : "#" + String(rank);
@@ -75,7 +36,7 @@ const DisplayLeaderboard = async (leaderboardArray) => {
         listElement.className = "leaderboardRow";
         //try to retrieve name
         const userID = pair[0];
-        const name = displayNameMapping[userID] == undefined ? userID : displayNameMapping[userID].displayName;
+        const name = displayNameMapping[userID] == undefined ? userID : displayNameMapping[userID];
         const score = Math.round(pair[1].score * 10) / 10; //1 dp
         const rank = i + 1; //1-indexed
         listElement.innerHTML = `<div></div>
@@ -93,7 +54,7 @@ const DisplayLeaderboard = async (leaderboardArray) => {
         leaderboardList.append(emptyElement);
     }
 };
-const InitDailyChallengeListeners = () => {
+const InitDailyChallengeListeners = (attemptsRemaining) => {
     const changeDisplayNameButton = document.getElementById("changeName");
     changeDisplayNameButton.onclick = async () => {
         const name = prompt("New display name");
@@ -104,8 +65,35 @@ const InitDailyChallengeListeners = () => {
         location.reload(); //reload page to refresh changes
     };
     const playChallengeButton = document.getElementById("playChallenge");
+    if (attemptsRemaining > 0) {
+        playChallengeButton.innerHTML = `<span style="font-size: x-large;">Play</span> <br> <h4>${attemptsRemaining} attempt${attemptsRemaining == 1 ? '' : 's'} left</h4>`;
+    }
+    else {
+        playChallengeButton.innerHTML = `<span style="font-size: x-large;">Click for more attempts...</span>`;
+    }
     playChallengeButton.onclick = () => {
+        if (attemptsRemaining <= 0) { //give player option to get more attempts by recruiting new players
+            alert("Tap 'share link' at the bottom.\n\nYou will recieve 1 attempt for each player who clicks your link.");
+            return;
+        }
         location.href = "/Src/Play/play.html?dailyChallenge=true";
+    };
+    const shareLinkButton = document.getElementById("shareLink");
+    shareLinkButton.onclick = () => {
+        //generate link and send to shareboard
+        const shareLink = BASE_URL + `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
+        if (navigator.share) {
+            navigator.share({
+                title: "Match It Daily Challenge",
+                text: "Draw the shape for cash in the Match It Daily Challenge!",
+                url: shareLink
+            })
+                .then(() => console.log("Shared successfully"))
+                .catch((error) => console.error("Error sharing:", error));
+        }
+        else {
+            alert("Web Share API not supported on this browser.");
+        }
     };
 };
 const InitTimeLeft = () => {
@@ -132,7 +120,23 @@ const MainDailyChallenge = async () => {
     const rank = GetUserRank(UUID, sortedLeaderboard);
     const userScore = await GetUserScore(UUID);
     UpdateUserScore(displayName, rank, userScore);
-    InitDailyChallengeListeners();
+    //check whether user has opened another user's link
+    const params = new URLSearchParams(new URL(location.href).search);
+    const fromUUID = params.get("UUID");
+    if (fromUUID != null) {
+        await HandleUserLink(fromUUID);
+    }
+    //retrieve current user's attempts
+    const attempts = await GetUserAttempts(UUID);
+    let firstListen = true;
+    FirebaseListen(`userData/${UUID}/attemptGrants/${DAY}`, () => {
+        if (firstListen == true) {
+            firstListen = false;
+            return;
+        }
+        location.reload(); //reload page whenever user gets a new attempt from somebody else
+    });
+    InitDailyChallengeListeners(attempts);
     InitTimeLeft();
 };
 MainDailyChallenge();

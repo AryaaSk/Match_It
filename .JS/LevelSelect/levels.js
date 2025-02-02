@@ -74,13 +74,16 @@ const LEVELS = {
         referenceImagePath: "/Assets/References/Cuboid.png"
     },
     "6": {
+        referenceImagePath: "/Assets/References/Triangle.png"
+    },
+    "7": {
         referenceImagePath: "/Assets/References/Superman.png"
-    }
+    },
 };
 //retrieve level progress from local storage, and hold in global variable
 let LEVEL_PROGRESS = RetrieveLevelProgress();
 let CURRENTLY_SELECTED_LEVEL_ID = GetCurrentlySelectedLevel();
-const PASS_THRESHOLD = 63;
+const PASS_THRESHOLD = 50;
 //Diamond storage
 const DIAMOND_STORAGE_KEY = "diamonds";
 const DIAMONDS_EARNED_PER_PASS = 1;

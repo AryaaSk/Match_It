@@ -27,11 +27,13 @@ body {
 }
 
 #playChallenge {
-    height: 30px;
+    height: max-content;
     width: 95%;
 
     margin-top: 10px;
     margin-bottom: 15px;
+    padding-top: 5px;
+    padding-bottom: 10px;
 
     border: none;
     border-radius: 5px;
@@ -104,9 +106,19 @@ body {
 .player {
     font-size: x-large;
 }
-#changeName {
-    height: 25px;
-    width: 95%;
+#playerControlButtons {
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 100%;
+    place-items: center;
+}
+
+.playerButton {
+    height: 30px;
+    width: 90%;
 
     border: none;
     border-radius: 5px;
@@ -117,6 +129,16 @@ body {
     color: #252525;
     cursor: pointer;
 }
+#changeName {
+    background: linear-gradient(whitesmoke, lightgrey);
+}
 #changeName:active {
     background: linear-gradient(lightgrey, lightgrey);
+}
+#shareLink {
+    color: white;
+    background: linear-gradient(var(--secondaryThemeColour), var(--secondaryThemeColourDark));
+}
+#shareLink:active {
+    background: linear-gradient(var(--secondaryThemeColourDark), var(--secondaryThemeColourDark));
 }
