@@ -294,6 +294,22 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
 
 
 
+const Display1XCanvasRecord = async (day: number, userID: string) => {
+    const canvasRecordJSON = await FirebaseRead(`canvasRecords/${day}/${userID}`) as string;
+    const canvasRecord = JSON.parse(canvasRecordJSON) as number[];
+
+    userCanvas.clearCanvas();
+
+    for (let i = 0; i < canvasRecord.length; i += 1) {
+        const x = userCanvas.GridX(i % CANVAS_SIZE); //don't have to worry about DPI (function designed for 1x)
+        const y = userCanvas.GridY(Math.floor(i / CANVAS_SIZE));
+
+        if (canvasRecord[i] == 1) {
+            userCanvas.plotPoint([x, y], "black", undefined, false, 1);
+        }
+    }
+}
+
 
 const MainPlay = async () => {
     //detect whether this is in single player mode or daily challenge
@@ -305,8 +321,6 @@ const MainPlay = async () => {
         UUID = await GetUniqueIdentifier(true); //load unique identifier
         await CheckForUpdate();
     }
-
-    //console.log(UUID);
 
     if (DAILY_CHALLENGE == false) {
         const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];
@@ -334,6 +348,8 @@ const MainPlay = async () => {
         const attemptsLeft = await GetUserAttempts(UUID) - 1;
         ShowDailyChallengeControls(attemptsLeft);
     }
+    
+    //await Display1XCanvasRecord(0, "");
 
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);
@@ -342,6 +358,7 @@ const MainPlay = async () => {
     //we will display feedback in a popup screen
     ShowPopup();
     ShowLoader();
+
 
     //need to treat progress updates separately from similarity algorithm, as otherwise JS will wait for entire algorithm to finish before updating progress
     setTimeout(async () => {

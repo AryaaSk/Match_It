@@ -89,6 +89,10 @@ export const CompareImages = onRequest({ cors: true }, async (request, response)
         if (personalBest == true) {
             //write new score to leaderboard
             await FirebaseWrite(`leaderboards/${DAY}/${userID}`, { score: maxSimilarity });
+
+            //also write score to canvasRecords for later validation
+            const userCanvasRawJSON = JSON.stringify(userCanvasRaw);
+            await FirebaseWrite(`canvasRecords/${DAY}/${userID}`, userCanvasRawJSON);
         }
     }
 
