@@ -179,7 +179,7 @@ const CheckForUpdate = async () => {
         //set update to false and reload
         await FirebaseWrite(`userData/${UUID}/update`, false);
         //@ts-ignore
-        window.location.replace(window.location.href);
+        location.reload(true);
     }
 };
 const UpdateAllUsers = async () => {

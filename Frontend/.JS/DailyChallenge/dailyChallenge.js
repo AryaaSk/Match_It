@@ -110,7 +110,7 @@ const InitTimeLeft = () => {
 };
 const MainDailyChallenge = async () => {
     UUID = await GetUniqueIdentifier(false);
-    //await CheckForUpdate();
+    await CheckForUpdate();
     //Check whether user has opened from Snapchat, and if so, tell them to open in a browser
     function OpenedFromSnapchat() {
         return /Snapchat/i.test(navigator.userAgent);
