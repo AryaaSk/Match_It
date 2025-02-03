@@ -285,7 +285,11 @@ const MainPlay = async () => {
     if (dailyChallenge == "true") {
         //load daily challenge; otherwise load regular level (stored under CURRENTLY_SELECTED_LEVEL)  
         DAILY_CHALLENGE = true;
+        UUID = await GetUniqueIdentifier(true); //load unique identifier
+        await CheckForUpdate();
     }
+
+    //console.log(UUID);
 
     if (DAILY_CHALLENGE == false) {
         const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];

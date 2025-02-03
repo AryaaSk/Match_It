@@ -102,6 +102,9 @@ const LEVELS: { [ levelID: string ]: Level } = {
     "7": {
         referenceImagePath: "/Assets/References/Superman.png"
     },
+    "8": {
+        referenceImagePath: "/Assets/References/Umbrella.png"
+    },
 }
 
 

@@ -1,18 +1,41 @@
 const DAY = Math.floor(Date.now() / (1000 * 86400));
 const BASE_URL = "https://matchit-514be.web.app/";
 //const BASE_URL = "http://127.0.0.1:8080"; //localhost
+const DEFAULT_ATTEMPTS = 5;
+let UUID: string = ""; //initialise in main
 
-const GetUniqueIdentifier = () => {
-    //check local storage for unique identifier
-    const uniqueIdentifier = localStorage.getItem("matchItPlayerID");
-    if (uniqueIdentifier == undefined) {
-        const uniqueString = GenerateRandomString(UUID_Length);
-        localStorage.setItem("matchItPlayerID", uniqueString);
-        return uniqueString;
-    }
-    else {
-        return uniqueIdentifier;
-    }
+const GetUniqueIdentifier = (useCache: boolean): Promise<string> => {
+    return new Promise((resolve) => {
+        if (useCache == false) {
+            // Import FingerprintJS using dynamic import
+            //@ts-ignore
+            const fpPromise = import('https://openfpcdn.io/fingerprintjs/v4')
+            .then((FingerprintJS: any) => FingerprintJS.load());
+
+            // Usage of the visitor identifier
+            fpPromise
+            .then((fp: any) => fp.get())
+            .then((result: any) => {
+                const visitorId: string = result.visitorId;
+                localStorage.setItem("matchItPlayerID", visitorId); //update local storage
+                resolve(visitorId);
+            })
+            .catch((error: any) => {
+            console.error('Failed to get visitor identifier:', error);
+        });
+        }
+        else {
+            //check local storage for unique identifier;
+            const uniqueIdentifier = localStorage.getItem("matchItPlayerID");
+            if (uniqueIdentifier == undefined) {
+                //user has not entered main page yet, so redirect back
+                location.href = "/Src/DailyChallenge/dailyChallenge.html";
+            }
+            else {
+                resolve(uniqueIdentifier);
+            }
+        }
+    })
 }
 
 const GenerateRandomString = (length: number) => {
@@ -24,9 +47,6 @@ const GenerateRandomString = (length: number) => {
     }
     return randomString;
 }
-
-const UUID_Length = 10;
-const UUID  = GetUniqueIdentifier();
 
 
 //firebase functions
@@ -197,4 +217,20 @@ const SetHandle = async (userID: string, handle: string) => {
 
 
 
-FirebaseWrite("userAgent", navigator.userAgent);
+//Check for update = true, and if so, use location.reload(true)
+const CheckForUpdate = async () => {
+    const update = await FirebaseRead(`userData/${UUID}/update`);
+    if (update == true) {
+        //set update to false and reload
+        await FirebaseWrite(`userData/${UUID}/update`, false);
+        //@ts-ignore
+        window.location.replace(window.location.href)
+    }
+}
+
+const UpdateAllUsers = async () => {
+    const userData = await FirebaseRead(`userData`) as { [uuid: string] : any };
+    for (const userID in userData) {
+        await FirebaseWrite(`userData/${userID}/update`, true);
+    }
+}

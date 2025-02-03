@@ -1,5 +1,4 @@
 "use strict";
-const DEFAULT_ATTEMPTS = 5;
 const UpdateUserScore = (username, rank, score) => {
     const userScoreElement = document.getElementById("playerScore");
     const userRank = rank == null ? '-' : "#" + String(rank);
@@ -54,14 +53,14 @@ const DisplayLeaderboard = async (leaderboardArray) => {
         leaderboardList.append(emptyElement);
     }
 };
-const InitDailyChallengeListeners = (attemptsRemaining) => {
+const InitDailyChallengeListeners = (attemptsRemaining, userID) => {
     const changeDisplayNameButton = document.getElementById("changeName");
     changeDisplayNameButton.onclick = async () => {
         const name = prompt("New display name");
         if (name == undefined || name.replaceAll(" ", "") == "") {
             return;
         }
-        await SetDisplayName(UUID, name);
+        await SetDisplayName(userID, name);
         location.reload(); //reload page to refresh changes
     };
     const playChallengeButton = document.getElementById("playChallenge");
@@ -81,7 +80,7 @@ const InitDailyChallengeListeners = (attemptsRemaining) => {
     const shareLinkButton = document.getElementById("shareLink");
     shareLinkButton.onclick = () => {
         //generate link and send to shareboard
-        const shareLink = BASE_URL + `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
+        const shareLink = BASE_URL + `/Src/DailyChallenge/dailyChallenge.html?UUID=${userID}`;
         //could also just use location.href
         if (navigator.share) {
             navigator.share({
@@ -110,6 +109,8 @@ const InitTimeLeft = () => {
     }, 1000);
 };
 const MainDailyChallenge = async () => {
+    UUID = await GetUniqueIdentifier(false);
+    //await CheckForUpdate();
     //Check whether user has opened from Snapchat, and if so, tell them to open in a browser
     function OpenedFromSnapchat() {
         return /Snapchat/i.test(navigator.userAgent);
@@ -181,7 +182,7 @@ const MainDailyChallenge = async () => {
             location.reload();
         }
     }, 100);
-    InitDailyChallengeListeners(attempts);
+    InitDailyChallengeListeners(attempts, UUID);
     InitTimeLeft();
 };
 MainDailyChallenge();

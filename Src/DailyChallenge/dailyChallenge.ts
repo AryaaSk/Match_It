@@ -1,5 +1,3 @@
-const DEFAULT_ATTEMPTS = 5;
-
 interface LeaderboardEntry {
     score: number;
 }
@@ -74,14 +72,14 @@ const DisplayLeaderboard = async (leaderboardArray: [string, LeaderboardEntry][]
 }
 
 
-const InitDailyChallengeListeners = (attemptsRemaining: number) => {
+const InitDailyChallengeListeners = (attemptsRemaining: number, userID: string) => {
     const changeDisplayNameButton = document.getElementById("changeName")!;
     changeDisplayNameButton.onclick = async () => {
         const name = prompt("New display name");
         if (name == undefined || name.replaceAll(" ", "") == "") {
             return;
         }
-        await SetDisplayName(UUID, name);
+        await SetDisplayName(userID, name);
         location.reload(); //reload page to refresh changes
     }
 
@@ -103,7 +101,7 @@ const InitDailyChallengeListeners = (attemptsRemaining: number) => {
     const shareLinkButton = document.getElementById("shareLink")!;
     shareLinkButton.onclick = () => {
         //generate link and send to shareboard
-        const shareLink = BASE_URL + `/Src/DailyChallenge/dailyChallenge.html?UUID=${UUID}`;
+        const shareLink = BASE_URL + `/Src/DailyChallenge/dailyChallenge.html?UUID=${userID}`;
         //could also just use location.href
         if (navigator.share) {
             navigator.share({
@@ -137,6 +135,9 @@ const InitTimeLeft = () => {
 
 
 const MainDailyChallenge = async () => {
+    UUID = await GetUniqueIdentifier(false);
+    //await CheckForUpdate();
+
     //Check whether user has opened from Snapchat, and if so, tell them to open in a browser
     function OpenedFromSnapchat() {
         return /Snapchat/i.test(navigator.userAgent);
@@ -219,7 +220,7 @@ const MainDailyChallenge = async () => {
         }
     }, 100);
 
-    InitDailyChallengeListeners(attempts);
+    InitDailyChallengeListeners(attempts, UUID);
     InitTimeLeft();
 }
 MainDailyChallenge();1
