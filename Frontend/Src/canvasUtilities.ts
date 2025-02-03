@@ -12,8 +12,8 @@ class Canvas {
         this.canvas = <HTMLCanvasElement>document.getElementById(canvasID);
         this.c = this.canvas.getContext('2d')!;
 
-        this.canvasHeight = document.getElementById(canvasID)!.getBoundingClientRect().height; //Fix blury lines
-        this.canvasWidth = document.getElementById(canvasID)!.getBoundingClientRect().width;
+        this.canvasHeight = Math.round(document.getElementById(canvasID)!.getBoundingClientRect().height); //Fix blury lines
+        this.canvasWidth = Math.round(document.getElementById(canvasID)!.getBoundingClientRect().width);
         this.canvas.setAttribute('height', String(this.canvasHeight * dpi));
         this.canvas.setAttribute('width', String(this.canvasWidth * dpi));
 

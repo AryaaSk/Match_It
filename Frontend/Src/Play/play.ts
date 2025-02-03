@@ -181,7 +181,8 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
 
     //const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, CANVAS_SIZE, CANVAS_SIZE, progressCallback);
     //utilise cloud function
-    //http://127.0.0.1:5001/matchit-514be/us-central1/CompareImages
+    //http://127.0.0.1:5001/matchit-514be/europe-west1/CompareImages
+    //https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages
     const response = await fetch("https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages", {
         method: "POST",
         headers: {
@@ -298,14 +299,17 @@ const Display1XCanvasRecord = async (day: number, userID: string) => {
     const canvasRecordJSON = await FirebaseRead(`canvasRecords/${day}/${userID}`) as string;
     const canvasRecord = JSON.parse(canvasRecordJSON) as number[];
 
+    console.log(userCanvas.canvasWidth);
+
     userCanvas.clearCanvas();
 
     for (let i = 0; i < canvasRecord.length; i += 1) {
-        const x = userCanvas.GridX(i % CANVAS_SIZE); //don't have to worry about DPI (function designed for 1x)
-        const y = userCanvas.GridY(Math.floor(i / CANVAS_SIZE));
+        const x = i % CANVAS_SIZE; //don't have to worry about DPI (function designed for 1x)
+        const y = Math.floor(i / CANVAS_SIZE);
 
         if (canvasRecord[i] == 1) {
-            userCanvas.plotPoint([x, y], "black", undefined, false, 1);
+            userCanvas.c.fillRect(x, y, 1, 1);
+            //userCanvas.plotPoint([x, y], "black", undefined, false, 1);
         }
     }
 }

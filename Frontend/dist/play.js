@@ -148,7 +148,8 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     const userCanvasRaw = ExtractAlphaValues(scaledUserCanvasData);
     //const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, CANVAS_SIZE, CANVAS_SIZE, progressCallback);
     //utilise cloud function
-    //http://127.0.0.1:5001/matchit-514be/us-central1/CompareImages
+    //http://127.0.0.1:5001/matchit-514be/europe-west1/CompareImages
+    //https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages
     const response = await fetch("https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages", {
         method: "POST",
         headers: {
@@ -242,6 +243,20 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     }
     feedbackElement.innerText = feedback;
 };
+const Display1XCanvasRecord = async (day, userID) => {
+    const canvasRecordJSON = await FirebaseRead(`canvasRecords/${day}/${userID}`);
+    const canvasRecord = JSON.parse(canvasRecordJSON);
+    console.log(userCanvas.canvasWidth);
+    userCanvas.clearCanvas();
+    for (let i = 0; i < canvasRecord.length; i += 1) {
+        const x = i % CANVAS_SIZE; //don't have to worry about DPI (function designed for 1x)
+        const y = Math.floor(i / CANVAS_SIZE);
+        if (canvasRecord[i] == 1) {
+            userCanvas.c.fillRect(x, y, 1, 1);
+            //userCanvas.plotPoint([x, y], "black", undefined, false, 1);
+        }
+    }
+};
 const MainPlay = async () => {
     //detect whether this is in single player mode or daily challenge
     const params = new URLSearchParams(new URL(location.href).search);
@@ -252,7 +267,6 @@ const MainPlay = async () => {
         UUID = await GetUniqueIdentifier(true); //load unique identifier
         await CheckForUpdate();
     }
-    //console.log(UUID);
     if (DAILY_CHALLENGE == false) {
         const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];
         LoadReferenceImage(currentLevel.referenceImagePath);
@@ -277,6 +291,7 @@ const MainPlay = async () => {
         const attemptsLeft = await GetUserAttempts(UUID) - 1;
         ShowDailyChallengeControls(attemptsLeft);
     }
+    //await Display1XCanvasRecord(0, "");
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);
     //once timer is done, we need to evaluate similarity
