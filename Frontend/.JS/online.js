@@ -3,7 +3,7 @@ const DAY = Math.floor(Date.now() / (1000 * 86400));
 const BASE_URL = "https://matchit-514be.web.app/";
 //const BASE_URL = "http://127.0.0.1:8080"; //localhost
 const DEFAULT_ATTEMPTS = 5;
-let UUID = ""; //initialise in main
+let UUID = "null"; //initialise in main
 const GetUniqueIdentifier = (useCache) => {
     return new Promise((resolve) => {
         if (useCache == false) {

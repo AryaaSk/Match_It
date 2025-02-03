@@ -179,7 +179,29 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
     const referenceCanvasRaw = ExtractAlphaValues(scaledReferenceCanvasData);
     const userCanvasRaw = ExtractAlphaValues(scaledUserCanvasData);
 
-    const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, CANVAS_SIZE, CANVAS_SIZE, progressCallback);
+    //const [maxDx, maxDy, maxSimilarity] = await FindMaximiumSimilarity(referenceCanvasRaw, userCanvasRaw, CANVAS_SIZE, CANVAS_SIZE, progressCallback);
+    //utilise cloud function
+    //http://127.0.0.1:5001/matchit-514be/us-central1/CompareImages
+    const response = await fetch("https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "referenceCanvasRaw": referenceCanvasRaw,
+            "userCanvasRaw": userCanvasRaw,
+            "canvasWidth": CANVAS_SIZE,
+            "canvasHeight": CANVAS_SIZE,
+            "userID": UUID
+        })
+    });
+
+    const responseJSON = await response.json() as { [k: string] : number };
+    const maxDx = responseJSON["maxDx"];
+    const maxDy = responseJSON["maxDy"];
+    const maxSimilarity = responseJSON["maxSimilarity"];
+    const newPersonalBest = responseJSON["newPersonalBest"];
 
     const similarityLabel = document.getElementById("similarityLabel")!;
     similarityLabel.innerText = `Similarity: ${Math.round(maxSimilarity)}`;
@@ -249,18 +271,13 @@ const GenerateFeedback = async (referenceCanvas: Canvas, userCanvas: Canvas, pro
             const newNumberOfAttempts = numberOfAttempts - 1;
             await SetAttempts(UUID, newNumberOfAttempts);
 
-            //update the database with the user's score
-            //check user's current score
-            const userScoreDB = await GetUserScore(UUID);
-            const userScore = userScoreDB == null ? -Infinity : userScoreDB;
-
             //encoding canvas data
             //const userCanvasRawCanvasDataJSON = JSON.stringify(userCanvasRawCanvasData);
             //const width = CANVAS_SIZE * dpi;
 
-            if (maxSimilarity > userScore) { //update database
+            if (newPersonalBest) { //update database
                 //await FirebaseWrite(`leaderboards/${day}/${UUID}`, { score: maxSimilarity, canvasData: { userCanvasRaw: userCanvasRawCanvasDataJSON, width: width } });
-                await FirebaseWrite(`leaderboards/${DAY}/${UUID}`, { score: maxSimilarity }); //canvasdata seems too long for firebase to support
+                //await FirebaseWrite(`leaderboards/${DAY}/${UUID}`, { score: maxSimilarity }); //canvasdata seems too long for firebase to support
                 feedback += "NEW PERSONAL BEST!\n\n";
 
                 feedback += "Go back to the leaderboard to find out where you placed.\n\n"

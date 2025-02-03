@@ -1,4 +1,5 @@
 "use strict";
+//Warning: upto date code is found in Backend/functions/src/similarity.ts
 const CANVAS_SIZE = 250;
 const GetRescaledCanvasData = (canvas, scaleFactor) => {
     //e.g. input canvas may be 900x900, and if scale factor is 1/3, we will re-draw contents to a 300x300 canvas

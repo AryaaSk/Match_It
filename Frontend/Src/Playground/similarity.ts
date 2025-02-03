@@ -1,3 +1,5 @@
+//Warning: upto date code is found in Backend/functions/src/similarity.ts
+
 const CANVAS_SIZE = 250;
 
 const GetRescaledCanvasData = (canvas: Canvas, scaleFactor: number) => {

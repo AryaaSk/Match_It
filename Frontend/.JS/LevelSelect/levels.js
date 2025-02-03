@@ -82,6 +82,9 @@ const LEVELS = {
     "8": {
         referenceImagePath: "/Assets/References/Umbrella.png"
     },
+    "9": {
+        referenceImagePath: "/Assets/References/Star.png"
+    },
 };
 //retrieve level progress from local storage, and hold in global variable
 let LEVEL_PROGRESS = RetrieveLevelProgress();
