@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <link rel="icon" href="Assets//Logo.png">
+    <title>Match It</title>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+    <script src="online.js"></script>
+
+    <script src="levels.js"></script>
+    <script src="home.js" defer></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body style="height: 100vh; width: 100%; display: grid; place-content: center;">
+    <div id="diamondStoreWrapper"> <!-- Diamonds store -->
+        <div id="diamondsIconWrapper" class="flexCenter">
+            <img id="diamondLogo" src="Assets//diamond.webp">           
+        </div>
+        <div id="diamondStore" class="flexCenter">
+            3
+        </div>
+    </div>
+
+    <div id="main"> <!-- Main button wrapper -->
+        <div id="currentLevel" class="gridChild gridCenter">
+            2
+            <h6>(100%)</h6>
+        </div>
+        <div id="buttons" class="gridChild">
+            <div class="gridChild flexCenter">
+                <button id="selectLevel">Levels</button>
+            </div>  
+            <div class="gridChild flexCenter">
+                <button id="dailyChallenge">Daily Challenge</button>
+            </div>  
+            <div class="gridChild flexCenter">
+                <button id="play">Play</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

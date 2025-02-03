@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <link rel="icon" href="Assets//Logo.png">
+    <title>Match It</title>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+    <script src="online.js"></script>
+
+    <script src="canvasUtilities.js"></script>
+    <script src="levels.js"></script>
+
+    <script src="similarity.js"></script>
+    <script src="play.js" defer></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="play.css">
+</head>
+<body>
+    <div id="main">
+        <canvas id="referenceCanvas"></canvas>
+        <br>
+        <br>
+        <br>
+
+        <h1>MATCH IT</h1>
+        <h3>Timer starts when you start drawing</h3>
+        <br>
+
+        <div id="canvasWrapper">
+            <canvas id="userCanvas"></canvas>
+            <button id="clear">Clear</button>
+            <div id="timer">30</div>
+        </div>
+    </div>
+
+    <div id="resultsPopupBackground">
+        <div id="resultsPopup" class="gridCenter">
+            <div id="loaderWrapper">
+                <div class="loader"></div>
+                <div id="loaderProgress"></div>
+            </div>
+
+            <div id="results" class="border-box">
+                <div></div>
+
+                <div class="gridChild">
+                    <h1 id="similarityLabel">Similarity: 30</h1>
+                </div>
+
+                <div class="gridChild">
+                    <div id="singlePlayerControls" class="gridChild" style="place-content: center;">
+                        <button id="playAgain">Play again</button>
+                        <br>
+                        <br>
+                        <button id="backToHome">Back to home</button>
+                        <br>
+                    </div>
+                    <div id="dailyChallengeControls" class="gridChild" style="place-content: center;">
+                        <button id="playAgainLeaderboard" class="resultButton" >Play again</button>
+                        <button id="backToLeaderboard" class="resultButton">Back to leaderboard</button>
+                    </div>
+                </div>
+
+                <div class="gridChild" id="feedback">
+                    You passed
+                </div>
+            </div>
+
+            <canvas id="feedbackCanvas"></canvas>
+        </div>
+    </div>
+</body>
+</html>

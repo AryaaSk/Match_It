@@ -1,0 +1,57 @@
+#diamondStoreWrapper {
+    width: 200px;
+    height: 81px;
+
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    top: 10px;
+
+    display: grid;
+    grid-template-columns: 60% 40%;
+    grid-template-rows: 100%;
+
+    border: 1px solid black;
+}
+#diamondsIconWrapper {
+    height: 100%;
+    width: 100%;
+}
+#diamondLogo {
+    height: 75%;
+    width: auto;
+}
+#diamondStore {
+    height: 100%;
+    width: 100%;
+
+    font-size: xx-large;
+}
+
+
+
+#main {
+    height: 300px;
+    width: 300px;
+
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto 81px;
+}
+#currentLevel {
+    border: 1px solid black;
+    border-bottom: none;
+}
+#currentLevel > h1 {
+    font-size: 150px;
+}
+#currentLevel > h6 {
+    font-size: 30px;
+}
+#buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 100%;
+
+    border: 1px solid black;
+}
