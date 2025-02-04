@@ -6,22 +6,38 @@ const DEFAULT_ATTEMPTS = 5;
 let UUID = "null"; //initialise in main
 const GetUniqueIdentifier = (useCache) => {
     return new Promise((resolve) => {
+        //check local storage for unique identifier;
+        const uniqueIdentifier = localStorage.getItem("matchItPlayerID");
+        if (uniqueIdentifier == undefined || uniqueIdentifier.length != 10) { //need to get rid of the Fingerprint-generated ids
+            //user has not entered main page yet, so redirect back
+            //location.href = "dailyChallenge.html";
+            const userID = GenerateRandomString(10);
+            localStorage.setItem("matchItPlayerID", userID); //update local storage
+            resolve(userID);
+        }
+        else {
+            resolve(uniqueIdentifier);
+        }
+    });
+    /*
+    return new Promise((resolve) => {
         if (useCache == false) {
             // Import FingerprintJS using dynamic import
             //@ts-ignore
             const fpPromise = import('https://openfpcdn.io/fingerprintjs/v4')
-                .then((FingerprintJS) => FingerprintJS.load());
+            .then((FingerprintJS: any) => FingerprintJS.load());
+
             // Usage of the visitor identifier
             fpPromise
-                .then((fp) => fp.get())
-                .then((result) => {
-                const visitorId = result.visitorId;
+            .then((fp: any) => fp.get())
+            .then((result: any) => {
+                const visitorId: string = result.visitorId;
                 localStorage.setItem("matchItPlayerID", visitorId); //update local storage
                 resolve(visitorId);
             })
-                .catch((error) => {
-                console.error('Failed to get visitor identifier:', error);
-            });
+            .catch((error: any) => {
+            console.error('Failed to get visitor identifier:', error);
+        });
         }
         else {
             //check local storage for unique identifier;
@@ -34,7 +50,8 @@ const GetUniqueIdentifier = (useCache) => {
                 resolve(uniqueIdentifier);
             }
         }
-    });
+    })
+    */
 };
 const GenerateRandomString = (length) => {
     const characters = "0abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";

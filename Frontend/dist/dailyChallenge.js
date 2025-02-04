@@ -127,6 +127,7 @@ const MainDailyChallenge = async () => {
     const leaderboard = await GetLeaderboard();
     const sortedLeaderboard = SortLeaderboard(leaderboard);
     await DisplayLeaderboard(sortedLeaderboard);
+    console.log(sortedLeaderboard);
     //display user's position
     const displayName = await GetDisplayName(UUID);
     const rank = GetUserRank(UUID, sortedLeaderboard);

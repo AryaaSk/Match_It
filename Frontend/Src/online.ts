@@ -6,6 +6,22 @@ let UUID: string = "null"; //initialise in main
 
 const GetUniqueIdentifier = (useCache: boolean): Promise<string> => {
     return new Promise((resolve) => {
+        //check local storage for unique identifier;
+        const uniqueIdentifier = localStorage.getItem("matchItPlayerID");
+        if (uniqueIdentifier == undefined || uniqueIdentifier.length != 10) { //need to get rid of the Fingerprint-generated ids
+            //user has not entered main page yet, so redirect back
+            //location.href = "/Src/DailyChallenge/dailyChallenge.html";
+            const userID = GenerateRandomString(10);
+            localStorage.setItem("matchItPlayerID", userID); //update local storage
+            resolve(userID);
+        }
+        else {
+            resolve(uniqueIdentifier);
+        }
+    });
+
+    /*
+    return new Promise((resolve) => {
         if (useCache == false) {
             // Import FingerprintJS using dynamic import
             //@ts-ignore
@@ -36,6 +52,7 @@ const GetUniqueIdentifier = (useCache: boolean): Promise<string> => {
             }
         }
     })
+    */
 }
 
 const GenerateRandomString = (length: number) => {

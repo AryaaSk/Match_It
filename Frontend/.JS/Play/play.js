@@ -291,7 +291,7 @@ const MainPlay = async () => {
         const attemptsLeft = await GetUserAttempts(UUID) - 1;
         ShowDailyChallengeControls(attemptsLeft);
     }
-    //await Display1XCanvasRecord(0, "");
+    //await Display1XCanvasRecord(20123, "");
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);
     //once timer is done, we need to evaluate similarity

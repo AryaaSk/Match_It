@@ -353,7 +353,7 @@ const MainPlay = async () => {
         ShowDailyChallengeControls(attemptsLeft);
     }
     
-    //await Display1XCanvasRecord(0, "");
+    //await Display1XCanvasRecord(20123, "");
 
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);
