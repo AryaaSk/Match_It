@@ -1,0 +1,54 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Link sharing properties -->
+    <meta property="og:title" content="Match It Daily Challenge!" />
+    <meta property="og:description" content="Draw today's shape and win money." />
+    <meta property="og:image" content="https://matchit-514be.web.app/Assets/Logo.png" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/Assets/Logo.png">
+
+    <title>Match It</title>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+    <script src="/.JS/online.js"></script>
+
+    <script src="/.JS/Party/party.js" defer></script>
+
+    <link rel="stylesheet" href="/Src/styles.css">
+    <link rel="stylesheet" href="/Src/Party/party.css">
+</head>
+<body>
+
+    <div id="embeddedWarning" class="flexCenter" style="display: none;">
+        Please open the link in a web browser (e.g. Safari or Google Chrome) for the best experience!
+    </div>
+
+
+    <div id="noParty">
+        <button id="createParty">Create party</button>
+        <button id="joinParty">Join Party</button>
+    </div>
+
+
+    <div id="inParty">
+        <h1 id="partyID">Party ID: 123456</h1>
+        <h3 id="joinable">Joinable: true</h3>
+
+        <button id="leaveParty">Leave Party</button>
+
+        <ul id="playerList">
+            <!-- Added dynamically -->
+        </ul>
+    </div>
+
+</body>
+</html>
