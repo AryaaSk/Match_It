@@ -1,6 +1,7 @@
 "use strict";
 const TIMER_DURATION = 5;
 let MODE = "singleplayer";
+let PARTY_ID = "";
 //3 canvas setup
 const userCanvas = new Canvas();
 const referenceCanvas = new Canvas();
@@ -104,6 +105,11 @@ const InitPopupListeners = () => {
     backToLeaderboardButton.onpointerdown = () => {
         location.href = `dailyChallenge.html`;
     };
+    const backToPartyButton = document.getElementById("backToLobby");
+    backToPartyButton.onpointerdown = () => {
+        ResetUserInGame(UUID, PARTY_ID);
+        location.href = `party.html`;
+    };
 };
 const loaderWrapper = document.getElementById("loaderWrapper");
 const results = document.getElementById("results");
@@ -158,6 +164,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     //utilise cloud function
     //http://127.0.0.1:5001/matchit-514be/europe-west1/CompareImages
     //https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages
+    const userID = MODE == "daily challenge" ? UUID : ""; //don't want to update leaderboard if we are in party mode
     const response = await fetch("https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages", {
         method: "POST",
         headers: {
@@ -169,7 +176,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
             "userCanvasRaw": userCanvasRaw,
             "canvasWidth": CANVAS_SIZE,
             "canvasHeight": CANVAS_SIZE,
-            "userID": UUID
+            "userID": userID
         })
     });
     const responseJSON = await response.json();
@@ -251,6 +258,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     }
     else if (MODE == "party") {
         //retrieve party information and save score to party
+        await SavePartyScore(UUID, PARTY_ID, maxSimilarity);
     }
     feedbackElement.innerText = feedback;
 };
@@ -283,6 +291,11 @@ const MainPlay = async () => {
         MODE = "party";
         UUID = await GetUniqueIdentifier(true); //load unique identifier
         await CheckForUpdate();
+        const partyID = await GetCurrentPartyCode(UUID);
+        if (partyID == null) { //user was actually not in a party?
+            location.href = "party.html"; //send back to party screen
+        }
+        PARTY_ID = partyID;
     }
     if (MODE == "singleplayer") {
         const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];

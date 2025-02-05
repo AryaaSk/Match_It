@@ -330,7 +330,7 @@ const MainPlay = async () => {
     else if (MODE == "party") {
         ShowPartyControls();
     }
-    //await Display1XCanvasRecord(20123, "");
+    //await Display1XCanvasRecord(20124, "");
     //console.log(await GetUserCommunicationHandle(""));
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);
