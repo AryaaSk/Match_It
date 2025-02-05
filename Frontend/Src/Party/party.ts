@@ -1,84 +1,3 @@
-const GetCurrentPartyCode = async (userID: string): Promise<string | null> => {
-    const partyCode = await FirebaseRead(`userData/${userID}/currentPartyCode`) as string | null;
-
-    if (partyCode != null) {
-        //check if party actually exists;
-        const partyExists = await FirebaseRead(`parties/${partyCode}`);
-        if (partyExists == null) {
-            //reset user's party
-            await FirebaseWrite(`userData/${userID}/currentPartyCode`, null);
-            return null;
-        }
-
-        //check if user is actually in party
-        const userInParty = await FirebaseRead(`parties/${partyCode!}/${userID}`);
-        if (userInParty == null) {
-            //add user to party
-            await FirebaseWrite(`parties/${partyCode!}/playerList/${userID}`, true);
-        }
-    }
-
-    return partyCode
-}
-
-const CreateParty = async (userID: string) => {
-    const partyID = GenerateRandomString(6).toLowerCase(); //change all letters to lowercase
-
-    //change users party code, and create entry under parties/...
-    await FirebaseWrite(`userData/${userID}/currentPartyCode`, partyID);
-    await FirebaseWrite(`parties/${partyID}`, null);
-    await FirebaseWrite(`parties/${partyID}/joinable`, true);
-    await FirebaseWrite(`parties/${partyID}/playerList/${userID}`, true);
-}
-const JoinParty = async (userID: string, partyID: string) => {
-    //check if party exists
-    const partyExists = await FirebaseRead(`parties/${partyID}`);
-    if (partyExists == null) {
-        return false;
-    }
-
-    //check if party is joinable
-    const joinable = await CheckPartyJoinable(partyID);
-    if (joinable == false) {
-        return false;
-    }
-
-    //change user's party code and add user as an entry under parties/...
-    await FirebaseWrite(`userData/${userID}/currentPartyCode`, partyID);
-    await FirebaseWrite(`parties/playerList/${partyID}/${userID}`, true);
-    return true;
-}
-const LeaveParty = async (userID: string, partyID: string) => {
-    await FirebaseWrite(`userData/${userID}/currentPartyCode`, null);
-    await FirebaseWrite(`parties/${partyID}/playerList/${userID}`, null);
-
-    //check if there are any players left; if not, then delete party
-    const playersLeft = await FirebaseRead(`parties/${partyID}/playersList`);
-    if (playersLeft == null) {
-        await FirebaseWrite(`parties/${partyID}`, null);
-    }
-}
-
-const RetrievePlayerNames = async (playerIDList: { [uuid: string] : true }) => {
-    const playerNameList: { [uuid: string] : string } = {};
-    for (const uuid in playerIDList) {
-        const displayName = await GetDisplayName(uuid);
-        playerNameList[uuid] = displayName;
-    }
-
-    return playerNameList;
-}
-const CheckPartyJoinable = async (partyID: string) => {
-    const joinable = await FirebaseRead(`parties/${partyID}/joinable`)!;
-    if (joinable == true) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-
 //HTML functions
 const noParty = document.getElementById("noParty")!;
 const inParty = document.getElementById("inParty")!;
@@ -89,6 +8,11 @@ const ShowNoParty = () => {
 const ShowInParty = () => {
     noParty.style.display = "none";
     inParty.style.display = "";
+}
+
+const changeNameButton = document.getElementById("changeName")!;
+const UpdateNameButton = (name: string) => {
+    changeNameButton.innerText = `${name} [CHANGE NAME]`;
 }
 
 const partyIDElement = document.getElementById("partyID")!;
@@ -129,20 +53,49 @@ const InitialisePartyListeners = (userID: string, partyID: string | null) => {
         await LeaveParty(userID, partyID!); //can assume partyID is not null if user can click on leave party button
         location.reload();
     }
+
+    playButton.onclick = async () => {
+        await PutAllPlayersInGame(partyID!);
+    }
+
+    changeNameButton.onclick = async () => {
+        const name = prompt("New display name");
+        if (name == undefined || name.replaceAll(" ", "") == "") {
+            return;
+        }
+        await SetDisplayName(userID, name);
+        location.reload(); //reload page to refresh changes
+    }
 }
 
+const playButton = document.getElementById("playGame")!;
+const ShowPlayButton = () => {
+    playButton.style.display = ""
+}
+const HidePlayButton = () => {
+    playButton.style.display = "none";
+}
+
+
+
+
 const playerListElement = document.getElementById("playerList")!;
-const UpdatePlayerNames = (playerList: { [uuid: string] : string }) => {
+const UpdatePlayers = (playerScores: { uuid: string, name: string, score: number | null }[]) => {
     playerListElement.innerHTML = "";
 
-    for (const uuid in playerList) {
+    for (const player of playerScores) {
         const listElement = document.createElement("li");
-        const name = playerList[uuid];
-        listElement.innerText = name;
+        listElement.innerText = `${player.name}: ${player.score == null ? '-' : Math.round(player.score * 10) / 10}`;
         playerListElement.append(listElement);
     }
 }
 
+
+
+
+const GoToGame = () => {
+    location.href = "/Src/Play/play.html?partyMode=true";
+}
 
 
 
@@ -166,6 +119,9 @@ const PartyMain = async () => {
     const partyCode = await GetCurrentPartyCode(UUID);
     InitialisePartyListeners(UUID, partyCode);
 
+    const displayName = await GetDisplayName(UUID);
+    UpdateNameButton(displayName);
+
     if (partyCode == null) {
         ShowNoParty();
     }
@@ -175,11 +131,39 @@ const PartyMain = async () => {
         const joinable = await CheckPartyJoinable(partyCode);
         UpdateJoinable(joinable)
 
-        //constantly update whenever a new user joins
-        FirebaseListen(`parties/${partyCode}/playerList`, async (playerIDList: { [uuid: string] : true }) => {
+        //constantly update whenever a new user joins or player is put into a game
+        FirebaseListen(`parties/${partyCode}/playersInGame`, async (playerIDList: { [uuid: string] : boolean }) => {
+            //first check if player is even still in party; if not, it is likely they were removed
+            if (playerIDList == undefined || playerIDList[UUID] == undefined) {
+                return;
+            }
+            
+            //check if player is put into game
+            if (playerIDList[UUID] == true) {
+                GoToGame();
+            }
+
+            //otherwise, we just update the names
             const playerNames = await RetrievePlayerNames(playerIDList);
-            UpdatePlayerNames(playerNames);
+            const playerScores = await RetrievePlayerScores(playerNames, partyCode); //retrieve scores for players
+            UpdatePlayers(playerScores);
+
+            //check if all players are in lobby, and if we, we can display start game button
+            const allPlayersInLobby = await CheckAllPlayersinLobby(partyCode);
+            if (allPlayersInLobby) {
+                ShowPlayButton();
+            }
+            else {
+                HidePlayButton();
+            }
         });
+
+
+        //game flow
+        //when a player clicks 'start game', all players are transported to the game (listening to 'parties/${partyID}/ingame')        
+
+
+
     }
 }
 PartyMain();

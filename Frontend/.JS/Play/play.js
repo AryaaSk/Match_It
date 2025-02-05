@@ -1,6 +1,7 @@
 "use strict";
 const TIMER_DURATION = 5;
-let DAILY_CHALLENGE = false;
+let MODE = "singleplayer";
+let PARTY_ID = "";
 //3 canvas setup
 const userCanvas = new Canvas();
 const referenceCanvas = new Canvas();
@@ -104,6 +105,11 @@ const InitPopupListeners = () => {
     backToLeaderboardButton.onpointerdown = () => {
         location.href = `/Src/DailyChallenge/dailyChallenge.html`;
     };
+    const backToPartyButton = document.getElementById("backToLobby");
+    backToPartyButton.onpointerdown = () => {
+        ResetUserInGame(UUID, PARTY_ID);
+        location.href = `/Src/Party/party.html`;
+    };
 };
 const loaderWrapper = document.getElementById("loaderWrapper");
 const results = document.getElementById("results");
@@ -122,13 +128,16 @@ const HideLoader = () => {
 };
 const singleplayerControls = document.getElementById("singlePlayerControls");
 const dailyChallengeControls = document.getElementById("dailyChallengeControls");
+const partyControls = document.getElementById("partyControls");
 const ShowSingleplayerControls = () => {
     singleplayerControls.style.display = "";
     dailyChallengeControls.style.display = "none";
+    partyControls.style.display = "none";
 };
 const ShowDailyChallengeControls = (attemptsRemaining) => {
     singleplayerControls.style.display = "none";
     dailyChallengeControls.style.display = "";
+    partyControls.style.display = "none";
     //show play again button if attemptsRemaining > 0
     const playAgainButton = document.getElementById("playAgainLeaderboard");
     if (attemptsRemaining <= 0) {
@@ -138,6 +147,11 @@ const ShowDailyChallengeControls = (attemptsRemaining) => {
     playAgainButton.onpointerdown = () => {
         location.reload();
     };
+};
+const ShowPartyControls = () => {
+    singleplayerControls.style.display = "none";
+    dailyChallengeControls.style.display = "none";
+    partyControls.style.display = "";
 };
 const feedbackElement = document.getElementById("feedback");
 const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) => {
@@ -150,6 +164,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     //utilise cloud function
     //http://127.0.0.1:5001/matchit-514be/europe-west1/CompareImages
     //https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages
+    const userID = MODE == "daily challenge" ? UUID : ""; //don't want to update leaderboard if we are in party mode
     const response = await fetch("https://europe-west1-matchit-514be.cloudfunctions.net/CompareImages", {
         method: "POST",
         headers: {
@@ -161,7 +176,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
             "userCanvasRaw": userCanvasRaw,
             "canvasWidth": CANVAS_SIZE,
             "canvasHeight": CANVAS_SIZE,
-            "userID": UUID
+            "userID": userID
         })
     });
     const responseJSON = await response.json();
@@ -175,7 +190,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
     console.log(`Maximum similarity: ${maxSimilarity} at dx = ${maxDx} dy = ${maxDy}`);
     //curate feedback
     let feedback = "";
-    if (DAILY_CHALLENGE == false) {
+    if (MODE == "singleplayer") {
         //save this to LevelData
         const currentHighestSimilarty = LEVEL_PROGRESS[CURRENTLY_SELECTED_LEVEL_ID].highestSimilarity;
         if (maxSimilarity > currentHighestSimilarty) {
@@ -218,7 +233,7 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
             }
         }
     }
-    else { //DAILY CHALLENGE == true
+    else if (MODE == "daily challenge") {
         //reduce number of attempts by one
         const numberOfAttempts = await GetUserAttempts(UUID);
         if (numberOfAttempts <= 0) {
@@ -241,6 +256,10 @@ const GenerateFeedback = async (referenceCanvas, userCanvas, progressCallback) =
             }
         }
     }
+    else if (MODE == "party") {
+        //retrieve party information and save score to party
+        await SavePartyScore(UUID, PARTY_ID, maxSimilarity);
+    }
     feedbackElement.innerText = feedback;
 };
 const Display1XCanvasRecord = async (day, userID) => {
@@ -261,18 +280,35 @@ const MainPlay = async () => {
     //detect whether this is in single player mode or daily challenge
     const params = new URLSearchParams(new URL(location.href).search);
     const dailyChallenge = params.get("dailyChallenge");
+    const partyMode = params.get("partyMode");
     if (dailyChallenge == "true") {
         //load daily challenge; otherwise load regular level (stored under CURRENTLY_SELECTED_LEVEL)  
-        DAILY_CHALLENGE = true;
+        MODE = "daily challenge";
         UUID = await GetUniqueIdentifier(true); //load unique identifier
         await CheckForUpdate();
     }
-    if (DAILY_CHALLENGE == false) {
+    if (partyMode == "true") {
+        MODE = "party";
+        UUID = await GetUniqueIdentifier(true); //load unique identifier
+        await CheckForUpdate();
+        const partyID = await GetCurrentPartyCode(UUID);
+        if (partyID == null) { //user was actually not in a party?
+            location.href = "/Src/Party/party.html"; //send back to party screen
+        }
+        PARTY_ID = partyID;
+    }
+    if (MODE == "singleplayer") {
         const currentLevel = LEVELS[CURRENTLY_SELECTED_LEVEL_ID];
         LoadReferenceImage(currentLevel.referenceImagePath);
     }
-    else {
+    else if (MODE == "daily challenge") {
         //load image stored under /Assets/DailyChallenge/${DAY}.png
+        const day = Math.floor(Date.now() / (1000 * 86400));
+        const dailyChallengeImagePath = `/Assets/DailyChallenge/${day}.png`;
+        LoadReferenceImage(dailyChallengeImagePath);
+    }
+    else if (MODE == "party") {
+        //for now load same image as daily challenge
         const day = Math.floor(Date.now() / (1000 * 86400));
         const dailyChallengeImagePath = `/Assets/DailyChallenge/${day}.png`;
         LoadReferenceImage(dailyChallengeImagePath);
@@ -282,16 +318,20 @@ const MainPlay = async () => {
     HidePopup();
     HideLoader();
     InitPopupListeners();
-    if (DAILY_CHALLENGE == false) {
+    if (MODE == "singleplayer") {
         ShowSingleplayerControls();
     }
-    else {
+    else if (MODE == "daily challenge") {
         //user will only see this button once the round ends, at which point the number of attempts would've decreased by 1
         //however we initialise the play again button at the start of the round, hence why we subtract 1
         const attemptsLeft = await GetUserAttempts(UUID) - 1;
         ShowDailyChallengeControls(attemptsLeft);
     }
+    else if (MODE == "party") {
+        ShowPartyControls();
+    }
     //await Display1XCanvasRecord(20123, "");
+    //console.log(await GetUserCommunicationHandle(""));
     await InitUserCanvas(); //waits for first click
     await StartTimer(TIMER_DURATION);
     //once timer is done, we need to evaluate similarity

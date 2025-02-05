@@ -251,3 +251,134 @@ const UpdateAllUsers = async () => {
         await FirebaseWrite(`userData/${userID}/update`, true);
     }
 }
+
+
+
+
+//Party Mode
+const GetCurrentPartyCode = async (userID: string): Promise<string | null> => {
+    const partyCode = await FirebaseRead(`userData/${userID}/currentPartyCode`) as string | null;
+
+    if (partyCode != null) {
+        //check if party actually exists;
+        const partyExists = await FirebaseRead(`parties/${partyCode}`);
+        if (partyExists == null) {
+            //reset user's party
+            await FirebaseWrite(`userData/${userID}/currentPartyCode`, null);
+            return null;
+        }
+
+        //check if user is actually in party
+        const userInParty = await FirebaseRead(`parties/${partyCode!}/playersInGame/${userID}`);
+        if (userInParty == null) {
+            //add user to party
+            await FirebaseWrite(`parties/${partyCode!}/playersInGame/${userID}`, false);
+        }
+    }
+
+    return partyCode
+}
+
+const CreateParty = async (userID: string) => {
+    const partyID = GenerateRandomString(6).toLowerCase(); //change all letters to lowercase
+
+    //change users party code, and create entry under parties/...
+    await FirebaseWrite(`userData/${userID}/currentPartyCode`, partyID);
+    await FirebaseWrite(`parties/${partyID}`, null);
+    await FirebaseWrite(`parties/${partyID}/joinable`, true);
+    await FirebaseWrite(`parties/${partyID}/playersInGame/${userID}`, false);
+}
+const JoinParty = async (userID: string, partyID: string) => {
+    //check if party exists
+    const partyExists = await FirebaseRead(`parties/${partyID}`);
+    if (partyExists == null) {
+        return false;
+    }
+
+    //check if party is joinable
+    const joinable = await CheckPartyJoinable(partyID);
+    if (joinable == false) {
+        return false;
+    }
+
+    //change user's party code and add user as an entry under parties/...
+    await FirebaseWrite(`userData/${userID}/currentPartyCode`, partyID);
+    await FirebaseWrite(`parties/${partyID}/playersInGame/${userID}`, false);
+    return true;
+}
+const LeaveParty = async (userID: string, partyID: string) => {
+    await FirebaseWrite(`userData/${userID}/currentPartyCode`, null);
+    await FirebaseWrite(`parties/${partyID}/playersInGame/${userID}`, null);
+
+    //check if there are any players left; if not, then delete party
+    const playersLeft = await FirebaseRead(`parties/${partyID}/playersInGame`);
+    console.log(playersLeft);
+    if (playersLeft == null) {
+        await FirebaseWrite(`parties/${partyID}`, null);
+    }
+}
+
+const CheckAllPlayersinLobby = async (partyID: string) => {
+    const playersInGame = await FirebaseRead(`parties/${partyID}/playersInGame`) as { [uuid: string] : boolean };
+    //if all players are not in game, then we return true; otherwise return false
+    for (const uuid in playersInGame) {
+        const inGame = playersInGame[uuid];
+        if (inGame == true) {
+            return false;
+        }
+    }
+
+    return true;
+}
+const PutAllPlayersInGame = async (partyID: string) => {
+    //update all player's in game status to true
+    const playersInGame = await FirebaseRead(`parties/${partyID}/playersInGame`) as { [uuid: string] : boolean };
+    for (const uuid in playersInGame) {
+        playersInGame[uuid] = true;
+    }
+    
+    //reset scores
+    await FirebaseWrite(`parties/${partyID}/playersScores`, null);
+
+    await FirebaseWrite(`parties/${partyID}/playersInGame`, playersInGame);
+}
+
+
+
+const RetrievePlayerNames = async (playerIDList: { [uuid: string] : boolean }) => {
+    const playerNameList: { [uuid: string] : string } = {};
+    for (const uuid in playerIDList) {
+        const displayName = await GetDisplayName(uuid);
+        playerNameList[uuid] = displayName;
+    }
+
+    return playerNameList;
+}
+const RetrievePlayerScores = async (playerIDNames: { [uuid: string] : string }, partyID: string) => {
+    //for each uuid, try to get the score
+    const playerScores: { uuid: string, name: string, score: number | null }[] = [];
+    for (const userID in playerIDNames) {
+        const score = await FirebaseRead(`parties/${partyID}/playersScores/${userID}`) as number | null;
+        playerScores.push({ uuid: userID, name: playerIDNames[userID], score: score });
+    }
+
+    return playerScores;
+}
+
+const CheckPartyJoinable = async (partyID: string) => {
+    const joinable = await FirebaseRead(`parties/${partyID}/joinable`)!;
+    if (joinable == true) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+const SavePartyScore = async (userID: string, partyID: string, score: number) => {
+    await FirebaseWrite(`parties/${partyID}/playersScores/${userID}`, score);
+}
+const ResetUserInGame = async (userID: string, partyID: string) => {
+    await FirebaseWrite(`parties/${partyID}/playersInGame/${userID}`, false);
+}
