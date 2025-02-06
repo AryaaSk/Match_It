@@ -19,7 +19,11 @@ const InitListeners = () => {
     };
     const dailyChallenge = document.getElementById("dailyChallenge");
     dailyChallenge.onclick = () => {
-        location.href = `/Src/DailyChallenge/dailyChallenge.html`;
+        location.href = "/Src/DailyChallenge/dailyChallenge.html";
+    };
+    const partyMode = document.getElementById("partyMode");
+    partyMode.onclick = () => {
+        location.href = "/Src/Party/party.html";
     };
 };
 const MainHome = () => {
