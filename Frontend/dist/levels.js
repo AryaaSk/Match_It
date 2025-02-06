@@ -67,9 +67,6 @@ const LEVELS = {
     "3": {
         referenceImagePath: "Assets//References/Cloud.png"
     },
-    "4": {
-        referenceImagePath: "Assets//References/Oval.png"
-    },
     "5": {
         referenceImagePath: "Assets//References/Cuboid.png"
     },

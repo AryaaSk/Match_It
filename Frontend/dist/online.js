@@ -270,7 +270,7 @@ const CheckAllPlayersinLobby = async (partyID) => {
     }
     return true;
 };
-const PutAllPlayersInGame = async (partyID) => {
+const PutAllPlayersInGame = async (partyID, levels) => {
     //update all player's in game status to true
     const playersInGame = await FirebaseRead(`parties/${partyID}/playersInGame`);
     for (const uuid in playersInGame) {
@@ -278,6 +278,14 @@ const PutAllPlayersInGame = async (partyID) => {
     }
     //reset scores
     await FirebaseWrite(`parties/${partyID}/playersScores`, null);
+    //choose a random reference image
+    const levelIDArray = Object.keys(levels);
+    let randomIndex = Math.round(Math.random() * levelIDArray.length);
+    if (randomIndex == levelIDArray.length) {
+        randomIndex -= 1;
+    }
+    const randomLevelID = levelIDArray[randomIndex];
+    await FirebaseWrite(`parties/${partyID}/levelID`, randomLevelID);
     await FirebaseWrite(`parties/${partyID}/playersInGame`, playersInGame);
 };
 const RetrievePlayerNames = async (playerIDList) => {

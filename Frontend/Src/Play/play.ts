@@ -368,10 +368,10 @@ const MainPlay = async () => {
         LoadReferenceImage(dailyChallengeImagePath);
     }
     else if (MODE == "party") {
-        //for now load same image as daily challenge
-        const day = Math.floor(Date.now() / (1000 * 86400));
-        const dailyChallengeImagePath = `/Assets/DailyChallenge/${day}.png`;
-        LoadReferenceImage(dailyChallengeImagePath);
+        //find level id from parties/{partyID}/levelID
+        const levelID = await FirebaseRead(`parties/${PARTY_ID}/levelID`) as string;
+        const level = LEVELS[levelID];
+        LoadReferenceImage(level.referenceImagePath);
     }
 
     InitTimer(TIMER_DURATION);
@@ -393,7 +393,7 @@ const MainPlay = async () => {
         ShowPartyControls();
     }
     
-    //await Display1XCanvasRecord(20124, "");
+    //await Display1XCanvasRecord(20125, "");
     //console.log(await GetUserCommunicationHandle(""));
 
     await InitUserCanvas(); //waits for first click

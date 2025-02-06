@@ -55,7 +55,7 @@ const InitialisePartyListeners = (userID: string, partyID: string | null) => {
     }
 
     playButton.onclick = async () => {
-        await PutAllPlayersInGame(partyID!);
+        await PutAllPlayersInGame(partyID!, LEVELS);
     }
 
     changeNameButton.onclick = async () => {

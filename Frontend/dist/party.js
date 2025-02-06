@@ -48,7 +48,7 @@ const InitialisePartyListeners = (userID, partyID) => {
         location.reload();
     };
     playButton.onclick = async () => {
-        await PutAllPlayersInGame(partyID);
+        await PutAllPlayersInGame(partyID, LEVELS);
     };
     changeNameButton.onclick = async () => {
         const name = prompt("New display name");
