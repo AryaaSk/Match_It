@@ -45,7 +45,20 @@ const InitialisePartyListeners = (userID, partyID) => {
     const leavePartyButton = document.getElementById("leaveParty");
     leavePartyButton.onclick = async () => {
         await LeaveParty(userID, partyID); //can assume partyID is not null if user can click on leave party button
-        location.reload();
+        location.href = "party.html";
+    };
+    const inviteOthersButton = document.getElementById("inviteOthers");
+    inviteOthersButton.onclick = () => {
+        if (navigator.share) {
+            navigator.share({
+                url: location.href
+            })
+                .then(() => console.log("Shared successfully"))
+                .catch((error) => console.error("Error sharing:", error));
+        }
+        else {
+            alert("Web Share API not supported on this browser.");
+        }
     };
     playButton.onclick = async () => {
         await PutAllPlayersInGame(partyID, LEVELS);
@@ -93,8 +106,31 @@ const PartyMain = async () => {
         return;
     }
     //Check whether user is currently in a party
-    const partyCode = await GetCurrentPartyCode(UUID);
+    let partyCode = await GetCurrentPartyCode(UUID);
+    //check if user opened link to party
+    const params = new URLSearchParams(new URL(location.href).search);
+    const partyID = params.get("partyID");
+    if (partyID != null) {
+        //if current party is not the same as partyID, leave it
+        if (partyCode != null && partyCode != partyID) {
+            await LeaveParty(UUID, partyCode);
+        }
+        //join new party
+        const success = await JoinParty(UUID, partyID);
+        if (success) {
+            partyCode = partyID;
+        }
+    }
     InitialisePartyListeners(UUID, partyCode);
+    //change party code in URL
+    let newParams = new URLSearchParams(window.location.search);
+    if (partyCode == null) {
+        newParams.delete("partyID");
+    }
+    else {
+        newParams.set('partyID', partyCode);
+    }
+    history.replaceState(null, '', '?' + newParams.toString());
     const displayName = await GetDisplayName(UUID);
     UpdateNameButton(displayName);
     if (partyCode == null) {
