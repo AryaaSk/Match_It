@@ -13,16 +13,6 @@ const LoadReferenceImage = (path) => {
     img.onload = () => {
         referenceCanvas.c.drawImage(img, 0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight);
     };
-    /*
-    sample user image (level 1)
-    const dataURL = localStorage.getItem("canvasData");
-    const img2 = new Image();
-    img2.src = dataURL!;
-    img2.onload = () => {
-        userCanvas.c.clearRect(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight);
-        userCanvas.c.drawImage(img2, 0, 0, 300*dpi, 300*dpi);
-    }
-    */
 };
 const InitUserCanvas = () => {
     const canvasElement = userCanvas.canvas;

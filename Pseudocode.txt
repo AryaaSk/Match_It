@@ -1,0 +1,23 @@
+
+
+
+
+
+
+def CalculateSimilarity(image1, image2):
+    samePixels = 0
+    differentPixels = 0
+
+    for i in range(0, len(image1)):
+        pixel1 = image1[i]
+        pixel2 = image2[i]
+
+        if pixel1 == pixel2:
+            samePixels += 1
+        else:
+            differentPixels += 1
+
+    score = samePixels - differentPixels
+    return score
+
+    
