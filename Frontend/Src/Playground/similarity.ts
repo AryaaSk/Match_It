@@ -250,7 +250,7 @@ const DISPLAY_OVERLAY = (dx: number, dy: number, referenceCanvas: Canvas, userCa
 
     //merge canvas1 and canvas2 data
     const canvas1ImageData = referenceCanvas.c.getImageData(0, 0, referenceCanvas.canvasWidth, referenceCanvas.canvasHeight);
-    const canvas2ImageData = offsetImageData(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight), Math.round(dx*dpi), Math.round(dy*dpi));
+    const canvas2ImageData = OffsetImageData(userCanvas.c.getImageData(0, 0, userCanvas.canvasWidth, userCanvas.canvasHeight), Math.round(dx*dpi), Math.round(dy*dpi));
 
     for (let i = 0; i < canvas1ImageData.data.length; i += 4) {
         if (canvas1ImageData.data[i + 3] == 0 && canvas2ImageData.data[i + 3] == 0) {
@@ -275,30 +275,25 @@ const DISPLAY_OVERLAY = (dx: number, dy: number, referenceCanvas: Canvas, userCa
 
 
 
-//AI Generated code:
-function offsetImageData(imageData: ImageData, dx: number, dy: number): ImageData {
-    const { width, height } = imageData;
-    const offsetData = new ImageData(width, height); // Create a new ImageData object
+//Takes in canvas image data and offsets; used when displaying canvas overlay as feedback
+const OffsetImageData = (imageData: ImageData, dx: number, dy: number): ImageData => {
+    const width = imageData.width;
+    const height = imageData.height;
+    const offsetData = new ImageData(width, height);
 
-    // Loop through the pixels of the original image
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            // Calculate the source coordinates
-            const srcX = x - dx;
+    for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+            const srcX = x - dx; //find source pixel
             const srcY = y - dy;
 
-            if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
-                // Source index in the original image
+            if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) { //check bounds
                 const srcIndex = (srcY * width + srcX) * 4;
+                const destIndex = (y * width + x) * 4; //copy source to dest
 
-                // Destination index in the new image
-                const destIndex = (y * width + x) * 4;
-
-                // Copy RGBA values
-                offsetData.data[destIndex] = imageData.data[srcIndex];         // R
-                offsetData.data[destIndex + 1] = imageData.data[srcIndex + 1]; // G
-                offsetData.data[destIndex + 2] = imageData.data[srcIndex + 2]; // B
-                offsetData.data[destIndex + 3] = imageData.data[srcIndex + 3]; // A
+                offsetData.data[destIndex] = imageData.data[srcIndex]; // Copy RGBA values
+                offsetData.data[destIndex + 1] = imageData.data[srcIndex + 1];
+                offsetData.data[destIndex + 2] = imageData.data[srcIndex + 2];
+                offsetData.data[destIndex + 3] = imageData.data[srcIndex + 3];
             }
         }
     }
