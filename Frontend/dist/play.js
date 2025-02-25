@@ -293,8 +293,11 @@ const MainPlay = async () => {
     }
     else if (MODE == "daily challenge") {
         //load image stored under Assets//DailyChallenge/${DAY}.png
-        const day = Math.floor(Date.now() / (1000 * 86400));
-        const dailyChallengeImagePath = `Assets//DailyChallenge/${day}.png`;
+        //have images from 20119 to 20130; therefore use DAY as seed for this range
+        const offset = DAY % 12;
+        const last2Digits = 19 + offset;
+        //const dailyChallengeImagePath = `Assets//DailyChallenge/${day}.png`;
+        const dailyChallengeImagePath = `Assets//DailyChallenge/201${last2Digits}.png`;
         LoadReferenceImage(dailyChallengeImagePath);
     }
     else if (MODE == "party") {
